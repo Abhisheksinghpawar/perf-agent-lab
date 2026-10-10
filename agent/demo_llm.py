@@ -1,10 +1,9 @@
-"""A scripted, OpenAI-compatible /chat/completions server for end-to-end tests (no API key, no network).
+"""A scripted, OpenAI-compatible /chat/completions server: lets anyone run the whole pipeline - including the two
+agent steps - with NO API key and NO network access to an LLM (`python -m agent demo`).
 
-It does NOT pretend to be smart: it replays a fixed tool-calling script so the *plumbing* (HTTP, tool loop, validation,
-smoke re-test, report) can be verified. Real model quality is a property of the provider, not of this repo.
-
-  python tests/fake_llm_server.py --port 8765 --good-locustfile locust/locustfile.py
-  LLM_BASE_URL=http://127.0.0.1:8765/v1 GROQ_API_KEY=fake python -m agent.run --demo-heal --force
+It does NOT pretend to be a smart model: it replays a fixed tool-calling script so the *plumbing* (HTTP, tool loop,
+script validation, smoke re-test, report) can be verified end to end. The report labels such runs "scripted demo".
+Real model quality is a property of the provider you configure, not of this repo.
 """
 import argparse
 import json
@@ -80,11 +79,21 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
+def start_in_thread(port: int, good_locustfile: str):
+    """Start the scripted server on a background thread; returns the HTTPServer (call .shutdown() to stop)."""
+    import threading
+    global GOOD
+    GOOD = Path(good_locustfile).read_text(encoding="utf-8")
+    server = HTTPServer(("127.0.0.1", port), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    return server
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--good-locustfile", default=str(Path(__file__).resolve().parent.parent / "locust" / "locustfile.py"))
     a = ap.parse_args()
     GOOD = Path(a.good_locustfile).read_text(encoding="utf-8")
-    print(f"fake LLM on http://127.0.0.1:{a.port}/v1", flush=True)
+    print(f"scripted demo LLM on http://127.0.0.1:{a.port}/v1", flush=True)
     HTTPServer(("127.0.0.1", a.port), Handler).serve_forever()

@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import signal
 import sys
 import time
 import traceback
@@ -38,6 +39,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-llm", action="store_true", help="deterministic mode: no model calls at all")
     ap.add_argument("--demo-heal", action="store_true", help="start from a stale Locust script to demonstrate self-healing")
     args = ap.parse_args(argv)
+
+    def _terminate(*_):                                       # CI cancel / kill: still stop the app and write the report
+        raise KeyboardInterrupt
+    try:
+        signal.signal(signal.SIGTERM, _terminate)
+    except (ValueError, OSError):                              # not in the main thread (e.g. demo/tests)
+        pass
 
     cfg = load_config(args.config, args.set)
     # PERF_HOME relocates all mutable state (memory, reports, site, out, target clone) - used for tests and local experiments
@@ -185,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
                 "smoke": state["smoke"], "heal": state["heal"], "analysis": state["analysis"], "logs": state["logs"],
                 "findings": state["findings"], "improvements": state["improvements"], "summary": state["summary"],
                 "load": {"users": int(cfg["load"]["users"]), "duration_s": int(cfg["load"]["duration_s"])},
-                "llm_mode": "off" if not llm.enabled else llm.model,
+                "llm_mode": "off (deterministic)" if not llm.enabled else ("scripted demo (no real model)" if llm.model == "scripted-demo" else llm.model),
                 "tokens": {"total": ctx.total_tokens(), "by_step": ctx.tokens, "skipped": skipped},
                 "trace": ctx.trace(),
             }

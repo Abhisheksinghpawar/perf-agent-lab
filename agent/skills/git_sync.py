@@ -21,6 +21,9 @@ def sync(cfg: dict, root: Path, last_sha: str | None) -> dict:
     else:
         work.parent.mkdir(parents=True, exist_ok=True)
         _git(["clone", "--depth", "200", "--branch", t["branch"], t["repo_url"], str(work)])
+    if t.get("ref"):                                         # reproducible run: test exactly this commit/tag
+        _git(["fetch", "--unshallow", "--tags", "origin"], work, check=False)
+        _git(["checkout", "--detach", t["ref"]], work)
     sha = _git(["rev-parse", "HEAD"], work)
     info = {
         "sha": sha,

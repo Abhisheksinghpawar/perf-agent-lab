@@ -10,3 +10,8 @@ __pycache__/
 
 # keep these (state that makes later runs cheaper):
 # memory/  reports/
+
+# local runs / demos
+.demo/
+.sample/
+.cache/

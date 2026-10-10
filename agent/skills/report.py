@@ -187,7 +187,7 @@ svg{{width:100%;height:auto}}.foot{{margin-top:40px;color:var(--m);font-size:12p
 </style></head><body><div class="wrap">
 <div class="m">perf-agent-lab - automated performance run</div>
 <h1>{e(commit["repo"].split("github.com/")[-1])} <span class="badge" style="background:{vcolor}">{e(verdict_label)}</span></h1>
-<div class="m">commit <a href="{e(commit["repo"])}/commit/{e(commit["sha"])}" target="_blank" rel="noopener">{e(commit["short"])}</a> - {e(commit["subject"])} - run {e(R["run_id"])} (UTC) - total {R["duration_s"]} s</div>
+<div class="m">commit <a href="{e(commit["repo"])}/commit/{e(commit["sha"])}" target="_blank" rel="noopener">{e(commit["short"])}</a> - {e(commit["subject"])} - run {e(R["run_id"])} (UTC) - total {R["duration_s"]} s - LLM: {e(R.get("llm_mode", "off"))}</div>
 <div class="card" style="margin-top:16px"><b>Summary.</b> {e(R["summary"])}</div>
 <div class="kpis">{kpis}</div>
 <h2>Pipeline</h2><ol class="trace">{"".join(steps)}</ol>

@@ -3,6 +3,7 @@
 [target]
 repo_url        = "https://github.com/mybatis/jpetstore-6.git"
 branch          = "master"
+ref             = ""                          # pin a commit SHA or tag for fully reproducible runs ("" = latest of branch)
 workdir         = "work/jpetstore-6"          # where the target repo is cloned (git-ignored)
 base_url        = "http://localhost:8080/jpetstore"
 health_path     = "/catalog"

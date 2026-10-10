@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import os
+import socket
 import subprocess
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 import psutil
 import requests
@@ -47,6 +49,10 @@ class App:
 
     def start(self) -> float:
         t0 = time.time()
+        port = urlparse(self.cfg["target"]["base_url"]).port or 80
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", port)) == 0:
+                raise RuntimeError(f"port {port} is already in use - stop the other process (an earlier run?) or change [target].base_url")
         logf = self.log_path.open("w", encoding="utf-8")
         cmd = [self.mvn, *self._mvn_args(), "cargo:run", "-P", "tomcat9", f"-Dcargo.jvmargs={JVM_ARGS}"]
         self.proc = subprocess.Popen(cmd, cwd=self.workdir, stdout=logf, stderr=subprocess.STDOUT)
