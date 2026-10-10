@@ -1,0 +1,47 @@
+[
+  {
+    "run_id": "20261010-234232",
+    "finished_at": "2026-10-10T23:43:42+00:00",
+    "verdict": "failed",
+    "duration_s": 69.1,
+    "commit": {
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "short": "1ffdf1e9",
+      "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-09-19T12:28:59-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6"
+    },
+    "smoke": {
+      "passed": false,
+      "requests": 0,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 0,
+      "rps": 0,
+      "error_rate": 0,
+      "p50": 0,
+      "p95": 0,
+      "p99": 0
+    },
+    "resources": {
+      "cpu_avg": null,
+      "cpu_max": null,
+      "java_cpu_avg": null,
+      "java_rss_max_mb": null,
+      "net_sent_mb": null,
+      "net_recv_mb": null
+    },
+    "findings": [],
+    "top_improvement": null,
+    "summary": "The run aborted: RuntimeError: build failed (exit 1):\n---------------------\n[INFO] \n[INFO] --- clean:3.5.0:clean (default-clean) @ jpetstore ---\n[INFO] \n[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ jpetstore ---\n[INFO] Rule 0: org.codehaus.mojo.extraenforcer.dependencies.EnforceBytecodeVersion passed\n[INFO] Rule 2: org.apac",
+    "tokens": {
+      "total": 0,
+      "skipped_llm_steps": []
+    },
+    "llm": "off (deterministic)"
+  }
+]
