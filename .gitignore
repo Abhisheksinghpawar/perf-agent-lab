@@ -1,0 +1,12 @@
+# runtime / scratch
+work/
+out/
+site/
+_scratch/
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# keep these (state that makes later runs cheaper):
+# memory/  reports/

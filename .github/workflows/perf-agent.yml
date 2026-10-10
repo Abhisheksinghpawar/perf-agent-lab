@@ -1,0 +1,117 @@
+name: perf-agent
+
+# Nightly run + manual runs. A run is skipped (zero compute, zero tokens) when the target repo has no new commits.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run even if there are no new commits"
+        type: boolean
+        default: true
+      demo_heal:
+        description: "Start from a stale Locust script to demonstrate self-healing"
+        type: boolean
+        default: false
+      use_llm:
+        description: "Use the LLM agents (needs the GROQ_API_KEY secret)"
+        type: boolean
+        default: true
+      users:
+        description: "Concurrent users for the 1-minute load test"
+        default: "25"
+
+concurrency:
+  group: perf-agent
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      published: ${{ steps.pub.outputs.published }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Cache Maven repository (JPetStore + Tomcat download)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-v1-${{ github.run_id }}
+          restore-keys: maven-v1-
+
+      - run: pip install -r requirements.txt
+
+      - name: Run the agent pipeline
+        id: agent
+        continue-on-error: true            # a failed run must still be reported and published
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FORCE: ${{ github.event.inputs.force }}
+          DEMO_HEAL: ${{ github.event.inputs.demo_heal }}
+          USE_LLM: ${{ github.event.inputs.use_llm }}
+          USERS: ${{ github.event.inputs.users }}
+        run: |
+          args=(--set "load.users=${USERS:-25}")
+          [ "$FORCE" = "true" ] && args+=(--force)
+          [ "$DEMO_HEAL" = "true" ] && args+=(--demo-heal)
+          [ "$USE_LLM" = "false" ] && args+=(--no-llm)
+          python -m agent.run "${args[@]}"
+
+      - name: Keep run logs as an artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-logs
+          path: out/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Commit memory + reports (this is what makes the next run cheaper)
+        if: always()
+        run: |
+          git config user.name  "perf-agent[bot]"
+          git config user.email "perf-agent@users.noreply.github.com"
+          git add memory reports
+          if git diff --cached --quiet; then echo "nothing to commit"; else
+            git commit -m "chore(run): update memory and reports [skip ci]"
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push
+          fi
+
+      - id: pub
+        run: |
+          if [ -f site/index.html ]; then echo "published=true" >> "$GITHUB_OUTPUT"; else echo "published=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Upload site
+        if: steps.pub.outputs.published == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: run
+    if: needs.run.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
