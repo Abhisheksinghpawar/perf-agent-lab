@@ -1,0 +1,24 @@
+{
+  "runs": [
+    {
+      "p95": {
+        "GET /account (sign-on form)": 8.2,
+        "GET /account/signoff": 11.4,
+        "GET /cart": 7.5,
+        "GET /cart/addItem": 7.9,
+        "GET /cart/checkout": 6.4,
+        "GET /catalog": 7.6,
+        "GET /catalog/searchProducts": 8.5,
+        "GET /catalog/viewCategory": 7.5,
+        "GET /catalog/viewItem": 8.2,
+        "GET /catalog/viewProduct": 8.6,
+        "GET /order/new": 6.1,
+        "POST /account/signon": 15.1,
+        "POST /order/new (billing)": 6.5,
+        "POST /order/new (confirm)": 7.5
+      },
+      "run_id": "20261010-234546",
+      "users": 250
+    }
+  ]
+}
