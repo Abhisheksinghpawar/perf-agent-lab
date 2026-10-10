@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 import socket
 import subprocess
 import time
@@ -14,6 +15,19 @@ import requests
 # Tomcat/cargo needs these on modern JDKs; GC events go to stdout so they land in the same app.log we analyse later.
 JVM_ARGS = ("--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED "
             "-Xlog:gc:stdout:time,uptime")
+
+
+def build_hint(build_log_tail: str) -> str:
+    """One-line, human explanation for the build failures people actually hit."""
+    if "RequireJavaVersion" in build_log_tail:
+        m = re.search(r"is version (\S+) which is not in the allowed range (.+)", build_log_tail)
+        return (f"the installed JDK ({m.group(1)}) is not accepted by the target project (allowed: {m.group(2).strip()}). Install a matching JDK."
+                if m else "the installed JDK is not accepted by the target project. Install a matching JDK.")
+    if "UnknownHostException" in build_log_tail or "Could not transfer artifact" in build_log_tail:
+        return "Maven could not download dependencies - check your network/proxy."
+    if "AccessDeniedException" in build_log_tail:
+        return "Maven could not write to its cache - another Maven run is active, or set PERF_MAVEN_REPO to a private directory."
+    return "see the Maven output below."
 
 
 class App:
@@ -44,7 +58,7 @@ class App:
         log.close()
         if r.returncode != 0:
             tail = (self.out / "build.log").read_text(encoding="utf-8", errors="replace")[-1500:]
-            raise RuntimeError(f"build failed (exit {r.returncode}):\n{tail}")
+            raise RuntimeError(f"build failed (exit {r.returncode}): {build_hint(tail)}\n{tail}")
         return round(time.time() - t0, 1)
 
     def start(self) -> float:

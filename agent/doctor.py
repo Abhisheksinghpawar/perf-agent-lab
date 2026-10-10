@@ -51,8 +51,8 @@ def run_checks(cfg: dict) -> list[tuple[str, str, str, str]]:
     add(sys.version_info >= (3, 11), "Python >= 3.11", sys.version.split()[0], "Install Python 3.11+ (the config loader uses tomllib).")
     add(bool(shutil.which("git")), "git", shutil.which("git") or "not found", "Install git: https://git-scm.com/downloads")
     jv = _java_major()
-    add(jv is not None and jv >= 11, "Java >= 11 (17 recommended)", f"java {jv}" if jv else "not found",
-        "Install a JDK (Temurin 17: https://adoptium.net) and make sure `java` is on PATH.")
+    add(jv is not None and jv >= 21, "Java >= 21 (JPetStore's build requires it)", f"java {jv}" if jv else "not found",
+        "Install JDK 21 (Temurin: https://adoptium.net) and make sure `java` is on PATH. JPetStore's Maven enforcer rejects JDK 17.")
     for mod in ("locust", "psutil", "requests"):
         # find_spec, not import: importing locust monkey-patches the standard library (gevent), which breaks HTTPS afterwards
         found = importlib.util.find_spec(mod) is not None

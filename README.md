@@ -15,7 +15,7 @@
 | | Way | You need | Time |
 |---|---|---|---|
 | **A** | **Run it on GitHub Actions** (fork, click Run) | a GitHub account | ~5 min, nothing to install |
-| **B** | **Local demo, no API key**: full pipeline incl. both agents with a *scripted* model | Java 17+, Python 3.11+, git | ~6 min first time (downloads Maven deps) |
+| **B** | **Local demo, no API key**: full pipeline incl. both agents with a *scripted* model | **Java 21+**, Python 3.11+, git | ~6 min first time (downloads Maven deps) |
 | **C** | **Real agents**: same as B with a free Groq key | + `GROQ_API_KEY` | ~6 min |
 
 ### A. GitHub Actions (fork and run)
@@ -98,7 +98,7 @@ flowchart LR
 | Symptom | Fix |
 |---|---|
 | `port 8080 is already in use` | Stop the other process (often an earlier, interrupted run) or change `[target].base_url`. |
-| `java: not found` / build fails immediately | Install JDK 17+ (e.g. [Temurin](https://adoptium.net)) and put it on `PATH`; re-run `doctor`. |
+| `java: not found` / `not in the allowed range [21,22),[25,26)...` | JPetStore's Maven build enforces JDK **21** (or 25+). Install [Temurin 21](https://adoptium.net), put it on `PATH`, re-run `doctor`. |
 | First run is slow | Maven downloads Tomcat and dependencies once (~5 min). Later runs reuse the cache. |
 | Maven `AccessDeniedException` in `~/.m2` | Two Maven processes ran at once. Run one at a time, or set `PERF_MAVEN_REPO` to a private directory. |
 | Actions: *Pages site failed* / deploy job fails | **Settings → Pages → Source** must be **GitHub Actions**. |

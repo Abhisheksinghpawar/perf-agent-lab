@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"      # JPetStore's Maven enforcer only allows JDK 21, 25+
 
       - uses: actions/setup-python@v5
         with:
