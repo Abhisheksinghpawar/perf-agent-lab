@@ -9,6 +9,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+def _top_finding(findings: list[dict]) -> dict | None:
+    """The most important finding in a form small enough for latest.json (a portfolio page renders it)."""
+    if not findings:
+        return None
+    f = findings[0]
+    return {"title": f["title"], "severity": f.get("severity", "info"), "category": f.get("category", ""),
+            "endpoint": f.get("endpoint"), "evidence": [str(x)[:170] for x in f.get("evidence", [])[:2]],
+            "suspected_cause": str(f.get("suspected_cause", ""))[:240],
+            "code_refs": [{"file": r["file"], "line": r.get("line", 1), "note": str(r.get("note", ""))[:90]} for r in f.get("code_refs", [])[:2] if r.get("file")],
+            "recommendation": str(f.get("recommendation", ""))[:240]}
+
+
 def summary_of(R: dict) -> dict:
     """The compact record used for latest.json and history.json."""
     o = (R.get("analysis") or {}).get("overall", {})
@@ -24,6 +36,9 @@ def summary_of(R: dict) -> dict:
                  "p99": o.get("p99", 0)},
         "resources": {k: res.get(k) for k in ("cpu_avg", "cpu_max", "java_cpu_avg", "java_rss_max_mb", "net_sent_mb", "net_recv_mb")},
         "findings": [{"title": f["title"], "severity": f.get("severity", "info")} for f in R["findings"][:5]],
+        "top_finding": _top_finding(R["findings"]),
+        "improvements": [{"priority": i.get("priority", n), "action": str(i.get("action", ""))[:240], "effort": i.get("effort", "")}
+                         for n, i in enumerate(R["improvements"][:3], 1)],
         "top_improvement": (R["improvements"][0]["action"] if R["improvements"] else None),
         "summary": R["summary"],
         "tokens": {"total": R["tokens"]["total"], "skipped_llm_steps": [s["step"] for s in R["tokens"]["skipped"]]},
