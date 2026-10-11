@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import ast
 import difflib
+import json
+import re
 import shutil
 from pathlib import Path
 
@@ -87,8 +89,20 @@ Rules:
 - Use fetch_page() to look at the real pages (links, form field names) and fix URLs, parameters and response checks.
 - Submit your fix with propose_locustfile(content). It validates the file and re-runs the smoke test for you and
   returns the result. Iterate until it passes. You have a small attempt budget; make each attempt count.
-- You MUST call propose_locustfile: describing a fix in text, without submitting it, counts as failure.
+- You MUST submit a script: either call propose_locustfile(content), or reply with the COMPLETE script in one ```python block
+  (it is then submitted for you). Describing a fix without submitting it counts as failure.
+- Be economical: you get a few page fetches (the landing page is already included below), then submit your first attempt.
 - When it passes, reply with one short sentence describing what you changed. No code in the final reply."""
+
+
+def _landing(cfg: dict) -> str:
+    """The app's landing page (links, forms) up front: saves the model several exploratory fetches (= tokens and minutes)."""
+    t = cfg["target"]
+    try:
+        page = _page_tool(t["base_url"])(t.get("health_path") or "/")
+        return f"Landing page {t.get('health_path') or '/'} -> " + json.dumps({k: page[k] for k in ("status", "links", "forms", "input_names")}, default=str)[:2500]
+    except Exception:  # noqa: BLE001 - optional context only
+        return "(landing page could not be fetched; use fetch_page)"
 
 
 def heal(cfg: dict, llm: LLM, ctx, broken: Path, smoke_result: dict, out: Path) -> dict:
@@ -137,12 +151,23 @@ def heal(cfg: dict, llm: LLM, ctx, broken: Path, smoke_result: dict, out: Path) 
     user = ("The smoke test failed.\n" + "\n".join(f"- {r}" for r in smoke_result["reasons"]) +
             "\nTop failures:\n" + "\n".join(f"- {f['endpoint']} -> {f['status'] or f['error']} (x{f['count']})"
                                           for f in smoke_result["top_failures"]) +
-            f"\nApp base URL: {cfg['target']['base_url']}. Start by calling read_locustfile().")
+            f"\nApp base URL: {cfg['target']['base_url']}.\n" + _landing(cfg) + "\nStart by calling read_locustfile().")
+
+    def on_text(reply: str):
+        """A script pasted in a code block is submitted for the model (small models often fumble JSON-escaped tool arguments)."""
+        m = re.search(r"```(?:python|py)?[ \t]*\n(.*?)```", reply, re.S)
+        if not m or state["passed"] or state["attempts"] >= max_attempts:
+            return None
+        res = propose_locustfile(m.group(1))
+        if res.get("smoke_passed"):
+            return "The smoke test passed. Reply with one short sentence describing what you changed."
+        return ("Result of submitting your script: " + json.dumps(res, default=str)[:1500] +
+                ". Fix it and submit again (tool call or one ```python block).")
 
     summary = ""
     try:
         summary = llm.run_agent("heal", SYSTEM, user, tools, until=lambda: state["passed"] or state["attempts"] >= max_attempts,
-                                max_turns=14, max_tokens=4000)      # a full script plus reasoning needs more than the default budget
+                                max_turns=14, max_tokens=4000, on_text=on_text)      # a full script plus reasoning needs more than the default budget
     except LLMUnavailable as exc:
         state["history"].append({"attempt": state["attempts"], "passed": False, "reasons": [str(exc)], "stage": "llm"})
 

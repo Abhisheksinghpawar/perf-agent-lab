@@ -95,5 +95,67 @@ class NudgeTests(unittest.TestCase):
         self.assertEqual(len(sent), 1)
 
 
+class RobustnessTests(unittest.TestCase):
+    def test_http_400_keeps_only_the_short_error_code(self):
+        resp = FakeResp(400, body={"error": {"code": "tool_use_failed", "message": "secret-account-detail", "failed_generation": "x"}})
+        with mock.patch("agent.llm.requests.post", return_value=resp):
+            with self.assertRaises(LLMUnavailable) as cm:
+                make()._post({})
+        self.assertEqual(cm.exception.code, "tool_use_failed")
+        self.assertIn("tool_use_failed", str(cm.exception))
+        self.assertNotIn("secret-account-detail", str(cm.exception))                # bodies never reach logs or reports
+
+    def test_a_malformed_tool_call_is_reported_back_to_the_model_and_retried(self):
+        calls = []
+
+        def transport(payload):
+            calls.append(payload)
+            if len(calls) == 1:
+                raise LLMUnavailable("LLM request failed with HTTP 400 (tool_use_failed)", "tool_use_failed")
+            return {"choices": [{"message": {"content": "ok"}}]}
+
+        out = LLM(CFG, Ctx(), transport=transport).run_agent("t", "s", "u", {})
+        self.assertEqual((out, len(calls)), ("ok", 2))
+        self.assertTrue(any("malformed" in m["content"] for m in calls[1]["messages"] if m["role"] == "user"))
+
+    def test_other_400s_are_not_swallowed(self):
+        def transport(payload):
+            raise LLMUnavailable("LLM request failed with HTTP 400 (invalid_request_error)", "invalid_request_error")
+        with self.assertRaises(LLMUnavailable):
+            LLM(CFG, Ctx(), transport=transport).run_agent("t", "s", "u", {})
+
+    def test_a_script_in_a_code_block_is_treated_as_a_submission(self):
+        fence = "`" * 3
+        replies = [f"Here is the fix:\n{fence}python\nprint('v1')\n{fence}", "Done, it passes."]
+        seen, sent = [], []
+
+        def transport(payload):
+            sent.append(payload)
+            return {"choices": [{"message": {"content": replies[len(sent) - 1]}}]}
+
+        def on_text(reply):
+            if "```python" in reply:
+                seen.append(reply)
+                return "The smoke test passed."
+
+        out = LLM(CFG, Ctx(), transport=transport).run_agent("t", "s", "u", {}, on_text=on_text)
+        self.assertEqual((out, len(seen), len(sent)), ("Done, it passes.", 1, 2))
+
+    def test_when_the_turn_budget_runs_out_tools_stay_defined_but_disabled(self):
+        tools = {"apply": ({"description": "d", "type": "object", "properties": {}}, lambda: {"ok": True})}
+        sent = []
+
+        def transport(payload):
+            sent.append(payload)
+            if payload.get("tool_choice") == "none":
+                return {"choices": [{"message": {"content": "final"}}]}
+            return {"choices": [{"message": {"content": None, "tool_calls": [{"id": "1", "type": "function", "function": {"name": "apply", "arguments": "{}"}}]}}]}
+
+        out = LLM(CFG, Ctx(), transport=transport).run_agent("t", "s", "u", tools, max_turns=2)
+        self.assertEqual(out, "final")
+        self.assertIn("tools", sent[-1])                                              # providers reject tool history without definitions
+        self.assertEqual(sent[-1]["tool_choice"], "none")
+
+
 if __name__ == "__main__":
     unittest.main()
