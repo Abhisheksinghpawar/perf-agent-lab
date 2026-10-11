@@ -1,0 +1,719 @@
+{
+  "run_id": "20261011-045856",
+  "finished_at": "2026-10-11T05:01:08+00:00",
+  "duration_s": 132.6,
+  "verdict": "attention",
+  "commit": {
+    "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+    "short": "1ffdf1e9",
+    "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+    "date": "2026-09-19T12:28:59-04:00",
+    "repo": "https://github.com/mybatis/jpetstore-6",
+    "changed_files": [],
+    "subdir": "",
+    "branch": "master"
+  },
+  "target": {
+    "name": "JPetStore",
+    "process_label": "Tomcat JVM",
+    "runner": "maven-cargo"
+  },
+  "smoke": {
+    "passed": true,
+    "requests": 65,
+    "failures": 0,
+    "error_rate": 0.0,
+    "p95_ms": 100.7,
+    "reasons": [],
+    "top_failures": [],
+    "endpoint_count": 13,
+    "locustfile": "/home/runner/work/perf-agent-lab/perf-agent-lab/out/20261011-045856/locust/locustfile.py",
+    "wall_s": 20.3
+  },
+  "heal": null,
+  "analysis": {
+    "overall": {
+      "requests": 52638,
+      "failures": 12,
+      "error_rate": 0.0002,
+      "rps": 879.52,
+      "duration_s": 59.8,
+      "t_start": 1791694783.152,
+      "t_end": 1791694843.0003002,
+      "avg": 4.7,
+      "p50": 2.2,
+      "p90": 7.9,
+      "p95": 15.3,
+      "p99": 55.7,
+      "max": 162.9
+    },
+    "endpoints": [
+      {
+        "name": "POST /account/signon",
+        "count": 1037,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 17.33,
+        "avg": 9.3,
+        "p50": 4.3,
+        "p90": 14.4,
+        "p95": 26.2,
+        "p99": 111.6,
+        "max": 162.9,
+        "baseline_p95": 17.9,
+        "delta_pct": 46.4
+      },
+      {
+        "name": "GET /account/signoff",
+        "count": 1037,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 17.33,
+        "avg": 6.5,
+        "p50": 4.1,
+        "p90": 12.7,
+        "p95": 20.3,
+        "p99": 43.6,
+        "max": 77.6,
+        "baseline_p95": 12.2,
+        "delta_pct": 66.4
+      },
+      {
+        "name": "GET /catalog/viewProduct",
+        "count": 9475,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 158.32,
+        "avg": 4.9,
+        "p50": 2.2,
+        "p90": 7.9,
+        "p95": 15.9,
+        "p99": 58.8,
+        "max": 116.6,
+        "baseline_p95": 8.6,
+        "delta_pct": 84.9
+      },
+      {
+        "name": "GET /catalog/viewItem",
+        "count": 9475,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 158.32,
+        "avg": 4.8,
+        "p50": 2.2,
+        "p90": 7.9,
+        "p95": 15.4,
+        "p99": 58.3,
+        "max": 125.0,
+        "baseline_p95": 8.2,
+        "delta_pct": 87.8
+      },
+      {
+        "name": "GET /catalog/viewCategory",
+        "count": 9476,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 158.33,
+        "avg": 4.5,
+        "p50": 2.1,
+        "p90": 7.2,
+        "p95": 15.2,
+        "p99": 53.6,
+        "max": 111.3,
+        "baseline_p95": 7.9,
+        "delta_pct": 92.4
+      },
+      {
+        "name": "POST /order/new (confirm)",
+        "count": 1037,
+        "failures": 12,
+        "error_rate": 0.0116,
+        "rps": 17.33,
+        "avg": 5.1,
+        "p50": 3.1,
+        "p90": 8.7,
+        "p95": 15.0,
+        "p99": 33.1,
+        "max": 79.4,
+        "baseline_p95": 8.8,
+        "delta_pct": 70.5
+      },
+      {
+        "name": "GET /catalog",
+        "count": 9476,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 158.33,
+        "avg": 4.6,
+        "p50": 2.0,
+        "p90": 6.8,
+        "p95": 14.6,
+        "p99": 60.3,
+        "max": 115.3,
+        "baseline_p95": 7.6,
+        "delta_pct": 92.1
+      },
+      {
+        "name": "GET /catalog/searchProducts",
+        "count": 2042,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 34.12,
+        "avg": 4.6,
+        "p50": 2.2,
+        "p90": 7.1,
+        "p95": 14.4,
+        "p99": 60.9,
+        "max": 97.7,
+        "baseline_p95": 9.7,
+        "delta_pct": 48.5
+      },
+      {
+        "name": "GET /cart/addItem",
+        "count": 3236,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 54.07,
+        "avg": 4.5,
+        "p50": 2.4,
+        "p90": 8.0,
+        "p95": 14.2,
+        "p99": 43.5,
+        "max": 101.0,
+        "baseline_p95": 8.5,
+        "delta_pct": 67.1
+      },
+      {
+        "name": "GET /cart",
+        "count": 2199,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 36.74,
+        "avg": 4.2,
+        "p50": 2.2,
+        "p90": 7.9,
+        "p95": 14.1,
+        "p99": 40.5,
+        "max": 58.8,
+        "baseline_p95": 7.6,
+        "delta_pct": 85.5
+      },
+      {
+        "name": "GET /account (sign-on form)",
+        "count": 1037,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 17.33,
+        "avg": 4.5,
+        "p50": 2.1,
+        "p90": 7.3,
+        "p95": 13.7,
+        "p99": 56.5,
+        "max": 96.5,
+        "baseline_p95": 8.3,
+        "delta_pct": 65.1
+      },
+      {
+        "name": "GET /cart/checkout",
+        "count": 1037,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 17.33,
+        "avg": 3.8,
+        "p50": 2.4,
+        "p90": 7.5,
+        "p95": 10.9,
+        "p99": 25.4,
+        "max": 50.2,
+        "baseline_p95": 7.6,
+        "delta_pct": 43.4
+      },
+      {
+        "name": "POST /order/new (billing)",
+        "count": 1037,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 17.33,
+        "avg": 3.7,
+        "p50": 2.4,
+        "p90": 7.0,
+        "p95": 10.8,
+        "p99": 22.4,
+        "max": 90.7,
+        "baseline_p95": 7.1,
+        "delta_pct": 52.1
+      },
+      {
+        "name": "GET /order/new",
+        "count": 1037,
+        "failures": 0,
+        "error_rate": 0.0,
+        "rps": 17.33,
+        "avg": 3.4,
+        "p50": 2.1,
+        "p90": 6.7,
+        "p95": 10.2,
+        "p99": 23.9,
+        "max": 30.2,
+        "baseline_p95": 7.2,
+        "delta_pct": 41.7
+      }
+    ],
+    "timeline": [
+      {
+        "t": 0.0,
+        "rps": 615.4,
+        "p50": 25.1,
+        "p95": 78.4,
+        "errors": 4,
+        "n": 3077
+      },
+      {
+        "t": 5.0,
+        "rps": 874.4,
+        "p50": 5.4,
+        "p95": 21.2,
+        "errors": 0,
+        "n": 4372
+      },
+      {
+        "t": 10.0,
+        "rps": 920.2,
+        "p50": 2.9,
+        "p95": 8.6,
+        "errors": 1,
+        "n": 4601
+      },
+      {
+        "t": 15.0,
+        "rps": 905.4,
+        "p50": 2.0,
+        "p95": 7.3,
+        "errors": 2,
+        "n": 4527
+      },
+      {
+        "t": 20.0,
+        "rps": 915.6,
+        "p50": 2.3,
+        "p95": 9.3,
+        "errors": 2,
+        "n": 4578
+      },
+      {
+        "t": 25.0,
+        "rps": 890.2,
+        "p50": 2.0,
+        "p95": 6.0,
+        "errors": 0,
+        "n": 4451
+      },
+      {
+        "t": 30.0,
+        "rps": 925.0,
+        "p50": 2.0,
+        "p95": 7.4,
+        "errors": 1,
+        "n": 4625
+      },
+      {
+        "t": 35.0,
+        "rps": 911.8,
+        "p50": 2.0,
+        "p95": 5.6,
+        "errors": 0,
+        "n": 4559
+      },
+      {
+        "t": 40.0,
+        "rps": 883.8,
+        "p50": 1.8,
+        "p95": 5.9,
+        "errors": 2,
+        "n": 4419
+      },
+      {
+        "t": 45.0,
+        "rps": 915.6,
+        "p50": 1.8,
+        "p95": 5.8,
+        "errors": 0,
+        "n": 4578
+      },
+      {
+        "t": 50.0,
+        "rps": 862.0,
+        "p50": 1.8,
+        "p95": 5.2,
+        "errors": 0,
+        "n": 4310
+      },
+      {
+        "t": 55.0,
+        "rps": 908.2,
+        "p50": 1.9,
+        "p95": 6.3,
+        "errors": 0,
+        "n": 4541
+      }
+    ],
+    "spikes": [],
+    "error_clusters": [
+      {
+        "endpoint": "POST /order/new (confirm)",
+        "status": "500",
+        "error": "HTTP 500",
+        "count": 12,
+        "first_rel": 0.3,
+        "last_rel": 44.4
+      }
+    ],
+    "resources": {
+      "cpu_avg": 38.1,
+      "cpu_max": 80.8,
+      "cpu_saturated_s": 0,
+      "java_cpu_avg": 20.5,
+      "java_cpu_max": 59.7,
+      "locust_cpu_avg": 36.9,
+      "mem_pct_max": 10.3,
+      "java_rss_start_mb": 307.1,
+      "java_rss_end_mb": 381.9,
+      "java_rss_max_mb": 381.9,
+      "java_rss_growth_mb_per_min": 77.0,
+      "net_sent_mb": 249.17,
+      "net_recv_mb": 249.14,
+      "cpu_count": null,
+      "load_generator_shares_host": true
+    },
+    "resource_timeline": [
+      {
+        "t": 0.0,
+        "cpu": 61.9,
+        "java_cpu": 46.0,
+        "rss_mb": 321.6,
+        "locust_cpu": 51.5,
+        "net_kbs": 5508.0
+      },
+      {
+        "t": 5.0,
+        "cpu": 67.5,
+        "java_cpu": 47.4,
+        "rss_mb": 353.1,
+        "locust_cpu": 67.0,
+        "net_kbs": 8642.1
+      },
+      {
+        "t": 10.0,
+        "cpu": 49.5,
+        "java_cpu": 30.8,
+        "rss_mb": 364.1,
+        "locust_cpu": 49.0,
+        "net_kbs": 8931.9
+      },
+      {
+        "t": 15.0,
+        "cpu": 33.6,
+        "java_cpu": 15.3,
+        "rss_mb": 369.9,
+        "locust_cpu": 32.7,
+        "net_kbs": 8973.3
+      },
+      {
+        "t": 20.0,
+        "cpu": 38.8,
+        "java_cpu": 20.4,
+        "rss_mb": 376.6,
+        "locust_cpu": 38.6,
+        "net_kbs": 9082.0
+      },
+      {
+        "t": 25.0,
+        "cpu": 31.1,
+        "java_cpu": 13.5,
+        "rss_mb": 378.7,
+        "locust_cpu": 30.8,
+        "net_kbs": 8699.4
+      },
+      {
+        "t": 30.0,
+        "cpu": 32.1,
+        "java_cpu": 14.2,
+        "rss_mb": 379.6,
+        "locust_cpu": 31.9,
+        "net_kbs": 9224.4
+      },
+      {
+        "t": 35.0,
+        "cpu": 31.1,
+        "java_cpu": 13.4,
+        "rss_mb": 379.6,
+        "locust_cpu": 30.8,
+        "net_kbs": 9139.5
+      },
+      {
+        "t": 40.0,
+        "cpu": 29.2,
+        "java_cpu": 12.6,
+        "rss_mb": 379.7,
+        "locust_cpu": 28.9,
+        "net_kbs": 8719.2
+      },
+      {
+        "t": 45.0,
+        "cpu": 27.2,
+        "java_cpu": 10.2,
+        "rss_mb": 381.8,
+        "locust_cpu": 27.1,
+        "net_kbs": 9056.0
+      },
+      {
+        "t": 50.0,
+        "cpu": 26.0,
+        "java_cpu": 9.7,
+        "rss_mb": 381.8,
+        "locust_cpu": 25.8,
+        "net_kbs": 8548.7
+      },
+      {
+        "t": 55.0,
+        "cpu": 27.5,
+        "java_cpu": 9.8,
+        "rss_mb": 381.9,
+        "locust_cpu": 27.3,
+        "net_kbs": 9413.7
+      }
+    ],
+    "regressions": [],
+    "variance": [],
+    "improvements": [],
+    "verdict": "healthy",
+    "reasons": []
+  },
+  "logs": {
+    "log_lines": 1456,
+    "levels": {
+      "SEVERE": 14
+    },
+    "exceptions": [
+      {
+        "type": "HsqlException",
+        "message": "integrity constraint violation: unique constraint or index violation ; PK_ORDERS table: ORDERS",
+        "count": 12,
+        "app_frames": [
+          {
+            "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+            "line": 85,
+            "method": "OrderService.insertOrder"
+          },
+          {
+            "file": "src/main/java/org/mybatis/jpetstore/web/controllers/OrderController.java",
+            "line": 148,
+            "method": "OrderController.newOrder"
+          }
+        ],
+        "where": "OrderService.insertOrder (OrderService.java:85)",
+        "context": [
+          "Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: integrity constraint violation: unique constraint or index violation ; PK_ORDERS table: ORDERS",
+          "The error may exist in org/mybatis/jpetstore/mapper/OrderMapper.xml",
+          "SQL: INSERT INTO ORDERS (ORDERID, USERID, ORDERDATE, SHIPADDR1, SHIPADDR2, SHIPCITY, SHIPSTATE,       SHIPZIP, SHIPCOUNTRY, BILLADDR1, BILLADDR2, BILLCITY, BILLSTATE, BILLZIP, BILL"
+        ]
+      },
+      {
+        "type": "ConnectException",
+        "message": "Connection refused",
+        "count": 1,
+        "app_frames": [],
+        "where": "",
+        "context": []
+      }
+    ],
+    "warnings": [
+      "Servlet.service() for servlet [dispatcher] in context with path [/jpetstore] threw exception [Request processing failed; nested exception is (x12)",
+      "Could not contact [localhost:8205] (base port [8205] and offset [0]). Tomcat may not be running.",
+      "Error stopping Catalina"
+    ],
+    "gc": {
+      "count": 144,
+      "total_pause_ms": 360.2,
+      "max_pause_ms": 12.8,
+      "full_gc": 0,
+      "heap_after_max_mb": 40
+    }
+  },
+  "findings": [
+    {
+      "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+      "severity": "high",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "12 HsqlException errors: integrity constraint violation PK_ORDERS",
+        "stack trace points to OrderService.insertOrder line 85"
+      ],
+      "suspected_cause": "Race condition on getNextId(\"ordernum\") under concurrent requests",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "orderMapper.insertOrder(order);"
+        }
+      ],
+      "recommendation": "Switch to database\u2011generated identity for ORDERID or serialize sequence access (e.g., use SELECT FOR UPDATE on the sequence table) to eliminate duplicates.",
+      "fingerprint": "24b5c87700",
+      "recurring": false,
+      "seen_count": 1
+    },
+    {
+      "title": "Elevated latency on POST /account/signon",
+      "severity": "medium",
+      "category": "latency",
+      "endpoint": "POST /account/signon",
+      "evidence": [
+        "p95 26.2\u202fms vs baseline 17.9\u202fms",
+        "p99 111.6\u202fms",
+        "CPU max 80.8\u202f% (no saturation)"
+      ],
+      "suspected_cause": "CPU contention from load generator sharing the same machine and possible database query slowdown",
+      "code_refs": [],
+      "recommendation": "Move the load generator to a separate host or reduce the RPS; profile the sign\u2011on handler for expensive DB calls.",
+      "fingerprint": "fafa244209",
+      "recurring": false,
+      "seen_count": 1
+    },
+    {
+      "title": "Elevated latency on catalog view endpoints",
+      "severity": "medium",
+      "category": "latency",
+      "endpoint": "GET /catalog/viewProduct",
+      "evidence": [
+        "p95 15.9\u202fms vs baseline 8.6\u202fms",
+        "p99 58.8\u202fms",
+        "CPU avg 38.1\u202f%",
+        "memory growth 77\u202fMB/min"
+      ],
+      "suspected_cause": "Database query performance or GC pressure",
+      "code_refs": [],
+      "recommendation": "Add appropriate indexes on product tables, review and optimize the viewProduct query, and consider increasing heap size to reduce GC churn.",
+      "fingerprint": "3e061b7399",
+      "recurring": false,
+      "seen_count": 1
+    }
+  ],
+  "improvements": [
+    {
+      "priority": 1,
+      "action": "Deploy the load generator on a separate machine or reduce its load to eliminate CPU contention with the application server",
+      "expected_impact": "Significant reduction in latency for sign\u2011on and catalog endpoints",
+      "effort": "medium"
+    },
+    {
+      "priority": 2,
+      "action": "Modify OrderService to use database auto\u2011increment for ORDERID or lock the sequence table during ID generation",
+      "expected_impact": "Eliminate 500 errors from duplicate order IDs",
+      "effort": "low"
+    },
+    {
+      "priority": 3,
+      "action": "Profile and optimize catalog view queries, adding missing indexes and tuning SQL",
+      "expected_impact": "Reduce p95/p99 latency for catalog endpoints",
+      "effort": "medium"
+    }
+  ],
+  "summary": "The test revealed a recurring duplicate\u2011order\u2011ID error on POST /order/new (confirm) and elevated latency on the sign\u2011on and catalog view endpoints. CPU contention from the shared load generator likely contributes to the latency spikes, while the order ID race condition is the root cause of the 500 errors.",
+  "load": {
+    "users": 250,
+    "duration_s": 60
+  },
+  "analysis_by": "llm",
+  "llm_mode": "openai/gpt-oss-20b",
+  "tokens": {
+    "total": 10798,
+    "by_step": {
+      "correlate": {
+        "prompt": 8379,
+        "completion": 2419,
+        "calls": 4
+      }
+    },
+    "skipped": [
+      {
+        "step": "heal",
+        "reason": "smoke test passed, no repair needed",
+        "est_tokens_saved": 21860
+      }
+    ]
+  },
+  "trace": [
+    {
+      "key": "pull",
+      "title": "Pull latest code",
+      "kind": "code",
+      "status": "ok",
+      "detail": "1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)",
+      "duration_s": 0.91
+    },
+    {
+      "key": "env",
+      "title": "Build and start the application",
+      "kind": "code",
+      "status": "ok",
+      "detail": "build 16.9s, ready after 8.6s",
+      "duration_s": 25.52
+    },
+    {
+      "key": "sanity",
+      "title": "Sanity (smoke) test",
+      "kind": "code",
+      "status": "ok",
+      "detail": "last known-good script: 65 req, 0 failed, p95 100.7 ms",
+      "duration_s": 20.27
+    },
+    {
+      "key": "heal",
+      "title": "Self-heal the Locust script",
+      "kind": "agent",
+      "status": "skipped",
+      "detail": "smoke test passed - no repair needed",
+      "duration_s": 0
+    },
+    {
+      "key": "load",
+      "title": "Run the load test (250 users, 60 s)",
+      "kind": "code",
+      "status": "ok",
+      "detail": "52638 requests, 59 resource samples",
+      "duration_s": 60.43
+    },
+    {
+      "key": "analyze",
+      "title": "Analyze results",
+      "kind": "code",
+      "status": "ok",
+      "detail": "p95 15.3 ms, 0 spike(s), 1 error cluster(s), verdict healthy",
+      "duration_s": 0.12
+    },
+    {
+      "key": "logs",
+      "title": "Inspect application and GC logs",
+      "kind": "code",
+      "status": "ok",
+      "detail": "1456 lines, 2 exception type(s), 144 GC events",
+      "duration_s": 0.01
+    },
+    {
+      "key": "correlate",
+      "title": "Correlate with logs, code and recent commits",
+      "kind": "agent",
+      "status": "ok",
+      "detail": "LLM agent with code/log tools",
+      "duration_s": 19.27
+    },
+    {
+      "key": "report",
+      "title": "Build report and publish",
+      "kind": "code",
+      "status": "ok",
+      "detail": "reports/runs/20261011-045856/report.html"
+    }
+  ]
+}

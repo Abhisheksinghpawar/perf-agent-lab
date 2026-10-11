@@ -1,4 +1,20 @@
 {
+  "24b5c87700": {
+    "category": "errors",
+    "endpoint": "POST /order/new (confirm)",
+    "first_seen": "20261011-045856",
+    "last_seen": "20261011-045856",
+    "seen_count": 1,
+    "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)"
+  },
+  "3e061b7399": {
+    "category": "latency",
+    "endpoint": "GET /catalog/viewProduct",
+    "first_seen": "20261011-045856",
+    "last_seen": "20261011-045856",
+    "seen_count": 1,
+    "title": "Elevated latency on catalog view endpoints"
+  },
   "ef86c7544c": {
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
@@ -6,5 +22,13 @@
     "last_seen": "20261011-045057",
     "seen_count": 6,
     "title": "11 failed request(s) on POST /order/new (confirm)"
+  },
+  "fafa244209": {
+    "category": "latency",
+    "endpoint": "POST /account/signon",
+    "first_seen": "20261011-045856",
+    "last_seen": "20261011-045856",
+    "seen_count": 1,
+    "title": "Elevated latency on POST /account/signon"
   }
 }

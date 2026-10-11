@@ -1,0 +1,73 @@
+[
+  {
+    "key": "pull",
+    "title": "Pull latest code",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)",
+    "duration_s": 0.91
+  },
+  {
+    "key": "env",
+    "title": "Build and start the application",
+    "kind": "code",
+    "status": "ok",
+    "detail": "build 16.9s, ready after 8.6s",
+    "duration_s": 25.52
+  },
+  {
+    "key": "sanity",
+    "title": "Sanity (smoke) test",
+    "kind": "code",
+    "status": "ok",
+    "detail": "last known-good script: 65 req, 0 failed, p95 100.7 ms",
+    "duration_s": 20.27
+  },
+  {
+    "key": "heal",
+    "title": "Self-heal the Locust script",
+    "kind": "agent",
+    "status": "skipped",
+    "detail": "smoke test passed - no repair needed",
+    "duration_s": 0
+  },
+  {
+    "key": "load",
+    "title": "Run the load test (250 users, 60 s)",
+    "kind": "code",
+    "status": "ok",
+    "detail": "52638 requests, 59 resource samples",
+    "duration_s": 60.43
+  },
+  {
+    "key": "analyze",
+    "title": "Analyze results",
+    "kind": "code",
+    "status": "ok",
+    "detail": "p95 15.3 ms, 0 spike(s), 1 error cluster(s), verdict healthy",
+    "duration_s": 0.12
+  },
+  {
+    "key": "logs",
+    "title": "Inspect application and GC logs",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1456 lines, 2 exception type(s), 144 GC events",
+    "duration_s": 0.01
+  },
+  {
+    "key": "correlate",
+    "title": "Correlate with logs, code and recent commits",
+    "kind": "agent",
+    "status": "ok",
+    "detail": "LLM agent with code/log tools",
+    "duration_s": 19.27
+  },
+  {
+    "key": "report",
+    "title": "Build report and publish",
+    "kind": "code",
+    "status": "ok",
+    "detail": "reports/runs/20261011-045856/report.html"
+  }
+]
