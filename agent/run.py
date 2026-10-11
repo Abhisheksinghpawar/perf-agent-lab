@@ -71,6 +71,7 @@ def main(argv: list[str] | None = None) -> int:
             ev["detail"] = f"{git['short']} {git['subject'][:60]}" + ("" if git["changed"] else " (unchanged)")
         if not git["changed"] and not args.force:
             ctx.skip("sanity", "Sanity (smoke) test", "no new commits since the last tested version")
+            mem.touch_checked()
             print(f"\nNo new commits since {git['short']} - nothing to test (this run cost 0 tokens). Use --force to override.")
             return 0
 

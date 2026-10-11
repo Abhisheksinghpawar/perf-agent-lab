@@ -39,8 +39,15 @@ class Memory:
         return self._read("state.json", {}).get("last_tested_sha")
 
     def save_state(self, sha: str, run_id: str, verdict: str):
-        self._write("state.json", {"last_tested_sha": sha, "last_run_id": run_id, "verdict": verdict,
-                                   "updated": datetime.now(timezone.utc).isoformat(timespec="seconds")})
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        self._write("state.json", {"last_tested_sha": sha, "last_run_id": run_id, "verdict": verdict, "updated": now,
+                                   "last_checked": now})
+
+    def touch_checked(self):
+        """Heartbeat for nights when the target repo is unchanged and the run is skipped: proves the schedule is alive."""
+        s = self._read("state.json", {})
+        s["last_checked"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        self._write("state.json", s)
 
     # ---- baseline -----------------------------------------------------------------------------
     def baseline(self, users: int | None = None) -> dict:

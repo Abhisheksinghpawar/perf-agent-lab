@@ -26,6 +26,13 @@ class BaselineAndRecurrenceTests(unittest.TestCase):
         self.m.add_baseline_run("r4", {"ep": 9.0}, users=250)                 # recorded before commits were tracked
         self.assertEqual(self.m.baseline_commits(250), {"abc", None})
 
+    def test_skipped_night_leaves_a_heartbeat_without_losing_state(self):
+        self.m.save_state("abc", "r1", "healthy")
+        self.m.touch_checked()
+        s = self.m._read("state.json", {})
+        self.assertEqual((s["last_tested_sha"], s["last_run_id"]), ("abc", "r1"))
+        self.assertIn("last_checked", s)
+
     def test_recurrence_survives_changing_numbers_in_titles(self):
         a = {"title": "126 failed request(s) on POST /order/new (confirm)", "endpoint": "POST /order/new (confirm)", "category": "errors"}
         b = {"title": "153 failed request(s) on POST /order/new (confirm)", "endpoint": "POST /order/new (confirm)", "category": "errors"}
