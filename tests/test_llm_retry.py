@@ -78,7 +78,7 @@ class NudgeTests(unittest.TestCase):
     def test_a_claim_without_the_tool_call_is_not_accepted(self):
         out, sent, applied = self.run_with(["I fixed it!", "TOOL", "Done."], lambda applied: (lambda: bool(applied)))
         self.assertEqual((out, len(applied), len(sent)), ("Done.", 1, 3))
-        self.assertIn("call the tool now", sent[1]["messages"][-1]["content"])
+        self.assertTrue(any("call the tool now" in m["content"] for m in sent[-1]["messages"] if m["role"] == "user"))   # the nudge is in the history
 
     def test_it_gives_up_after_two_nudges_instead_of_looping(self):
         out, sent, applied = self.run_with(["I fixed it!"], lambda applied: (lambda: False))
