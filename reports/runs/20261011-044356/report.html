@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance run 20261011-044356 - Healthy</title>
+<style>
+:root{--bg:#05060f;--card:#ffffff0a;--b:#ffffff17;--t:#e8ebf7;--m:#8b92b3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1100px 500px at 50% -10%,#14123a,var(--bg) 60%);color:var(--t);font:14px/1.55 Inter,system-ui,Segoe UI,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:36px 22px 70px}h1{font:600 28px/1.15 system-ui;margin:6px 0 4px}h2{font:600 18px system-ui;margin:34px 0 12px}h4{margin:0 0 8px;font-size:14px}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:600;font-size:12px;color:#05060f}.m{color:var(--m)}small{color:var(--m)}
+.card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:16px 18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.kpi{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:12px 14px}
+.kpi .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--m)}.kpi .v{font:600 22px system-ui}.kpi .s{font-size:11px;color:var(--m)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:7px 9px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500}table.num td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}table.num th:not(:first-child){text-align:right}
+ol.trace{list-style:none;padding:0;margin:0;display:grid;gap:6px}.st{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--b);border-radius:10px;padding:8px 12px}
+.st i{color:var(--m);font-style:normal;font-size:12px;flex:1}.st .d{color:var(--m);font-variant-numeric:tabular-nums;min-width:48px;text-align:right}.st.failed{border-color:#f87171}.st.skipped{opacity:.6}
+.b{font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:6px}.b.agent{background:#a78bfa;color:#05060f}.b.code{background:#ffffff1a;color:#c9cee8}
+.f{border-left:4px solid;margin-bottom:12px}.sev{font-size:10px;padding:2px 8px;border-radius:99px;color:#05060f;text-transform:uppercase;vertical-align:middle}.rec{font-size:10px;color:#fbbf24}
+ul.ev{margin:6px 0 8px 18px;padding:0}a{color:#22d3ee}pre{background:#00000055;border:1px solid var(--b);border-radius:10px;padding:12px;overflow:auto;font-size:11.5px}code{background:#ffffff14;padding:1px 5px;border-radius:5px}
+svg{width:100%;height:auto}.foot{margin-top:40px;color:var(--m);font-size:12px}@media(max-width:760px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="wrap">
+<div class="m">perf-agent-lab - automated performance run</div>
+<h1>JPetStore <span class="badge" style="background:#34d399">Healthy</span></h1>
+<div class="m">commit <a href="https://github.com/mybatis/jpetstore-6/commit/1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf" target="_blank" rel="noopener">1ffdf1e9</a> - Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x - run 20261011-044356 (UTC) - total 226.7 s - LLM: openai/gpt-oss-20b</div>
+<div class="card" style="margin-top:16px"><b>Summary.</b> No errors, regressions or steady-state spikes detected in this run.</div>
+<div class="kpis"><div class="kpi"><div class="k">Requests</div><div class="v">14,540</div><div class="s">250 users, 60 s</div></div><div class="kpi"><div class="k">Throughput</div><div class="v">243.15 req/s</div><div class="s"></div></div><div class="kpi"><div class="k">p95 latency</div><div class="v">4 ms</div><div class="s">p50 2 / p99 54</div></div><div class="kpi"><div class="k">Error rate</div><div class="v">0.00%</div><div class="s">0 failed</div></div><div class="kpi"><div class="k">CPU (host)</div><div class="v">14.7%</div><div class="s">max 33.1%, Tomcat JVM avg 7.7%</div></div><div class="kpi"><div class="k">Tomcat JVM memory</div><div class="v">373 MB</div><div class="s">peak RSS</div></div><div class="kpi"><div class="k">Smoke test</div><div class="v">passed</div><div class="s">21 req - script self-healed</div></div><div class="kpi"><div class="k">LLM tokens</div><div class="v">21860</div><div class="s"></div></div></div>
+<h2>Pipeline</h2><ol class="trace"><li class="st ok"><span class="b code">CODE</span><b>Pull latest code</b><span class="d">0.55s</span><i>ok - 1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)</i></li><li class="st ok"><span class="b code">CODE</span><b>Build and start the application</b><span class="d">26.46s</span><i>ok - build 15.4s, ready after 11.0s</i></li><li class="st failed"><span class="b code">CODE</span><b>Sanity (smoke) test</b><span class="d">20.26s</span><i>failed - stale demo script: 21 req, 21 failed, p95 4.7 ms -&gt; FAILED: error rate 100.0% (&gt; 0.0%)</i></li><li class="st ok"><span class="b agent">AGENT</span><b>Self-heal the Locust script</b><span class="d">112.88s</span><i>ok - healed after 1 attempt(s)</i></li><li class="st ok"><span class="b code">CODE</span><b>Run the load test (250 users, 60 s)</b><span class="d">60.35s</span><i>ok - 14540 requests, 60 resource samples</i></li><li class="st ok"><span class="b code">CODE</span><b>Analyze results</b><span class="d">0.03s</span><i>ok - p95 4.1 ms, 0 spike(s), 0 error cluster(s), verdict healthy</i></li><li class="st ok"><span class="b code">CODE</span><b>Inspect application and GC logs</b><span class="d">0.02s</span><i>ok - 166 lines, 1 exception type(s), 13 GC events</i></li><li class="st skipped"><span class="b agent">AGENT</span><b>Correlate with logs, code and recent commits</b><span class="d">0s</span><i>skipped - nothing anomalous to investigate - no tokens spent</i></li><li class="st ok"><span class="b code">CODE</span><b>Build report and publish</b><span class="d">0s</span><i>ok - reports/runs/20261011-044356/report.html</i></li></ol>
+<h2>Self-healing</h2><div class="card"><p>The smoke test failed, so the repair agent rewrote the Locust script (1 attempt(s)): <b>healed</b>. Updated the script to use the current Stripes URLs, correct form field names, and adjusted request paths.</p><table class=""><thead><tr><th>Attempt</th><th>Result</th><th>Stage</th><th>Notes</th></tr></thead><tbody><tr><td>1</td><td>pass</td><td>smoke</td><td>-</td></tr></tbody></table><pre>--- locustfile.broken.py
++++ locustfile.healed.py
+@@ -1,7 +1,6 @@
+-&quot;&quot;&quot;A deliberately STALE Locust script, used by `--demo-heal` to demonstrate self-healing.
++&quot;&quot;&quot;Locust script for JPetStore (Stripes) updated to use current URLs and form fields.
+ 
+-It targets URLs and form fields from an older JPetStore (Struts-style *.do pages), so every request fails the smoke
+-test. The repair agent has to discover the real Stripes URLs (Catalog.action?...), fix the parameters and checks, and
+-prove the fix by passing the smoke test again.
++The original script targeted legacy *.do URLs and failed the smoke test.
++This version uses the current Stripes routes under the /jpetstore context.
+ &quot;&quot;&quot;
+ import random
+@@ -11,8 +10,12 @@
+ import recorder  # noqa: F401  (required: writes the per-request log)
+ 
+-CATEGORIES = [&quot;FISH&quot;, &quot;DOGS&quot;, &quot;CATS&quot;, &quot;REPTILES&quot;, &quot;BIRDS&quot;]
++# Category identifiers used by the application
++CATEGORIES = [&quot;BIRDS&quot;, &quot;CATS&quot;, &quot;DOGS&quot;, &quot;FISH&quot;, &quot;REPTILES&quot;]
++
++# A sample product that exists in the catalog
++SAMPLE_PRODUCT_ID = &quot;AV-CB-01&quot;
+ 
+ 
+-class OldShopper(HttpUser):
++class Shopper(HttpUser):
+     wait_time = between(0.5, 1.5)
+ 
+@@ -20,11 +23,19 @@
+     def browse_category(self):
+         cat = random.choice(CATEGORIES)
+-        with self.client.get(f&quot;/shop/viewCategory.do?categoryId={cat}&quot;, name=&quot;GET viewCategory.do&quot;, catch_response=True) as r:
+-            if r.status_code != 200 or &quot;Category&quot; not in r.text:
++        with self.client.get(
++            f&quot;/catalog/viewCategory?categoryId={cat}&quot;,
++            name=&quot;GET viewCategory&quot;,
++            catch_response=True,
++        ) as r:
++            if r.status_code != 200:
+                 r.failure(f&quot;category page broken: HTTP {r.status_code}&quot;)
+ 
+     @task(2)
+     def view_product(self):
+-        with self.client.get(&quot;/shop/viewProduct.do?productId=FI-SW-01&quot;, name=&quot;GET viewProduct.do&quot;, catch_response=True) as r:
++        with self.client.get(
++            f&quot;/catalog/viewProduct?productId={SAMPLE_PRODUCT_ID}&quot;,
++            name=&quot;GET viewProduct&quot;,
++            catch_response=True,
++        ) as r:
+             if r.status_code != 200:
+                 r.failure(f&quot;product page broken: HTTP {r.status_code}&quot;)
+@@ -32,5 +43,16 @@
+     @task(1)
+     def login(self):
+-        with self.client.post(&quot;/shop/signon.do&quot;, data={&quot;username&quot;: &quot;j2ee&quot;, &quot;password&quot;: &quot;j2ee&quot;}, name=&quot;POST signon.do&quot;, catch_response=True) as r:
++        # The login form expects a &#x27;signon&#x27; field in addition to username and password
++        payload = {
++            &quot;username&quot;: &quot;j2ee&quot;,
++            &quot;password&quot;: &quot;j2ee&quot;,
++            &quot;signon&quot;: &quot;Sign On&quot;,
++        }
++        with self.client.post(
++            &quot;/account/signon&quot;,
++            data=payload,
++            name=&quot;POST signon&quot;,
++            catch_response=True,
++        ) as r:
+             if r.status_code != 200:
+                 r.failure(f&quot;login broken: HTTP {r.status_code}&quot;)
+</pre></div>
+<h2>Results</h2><div class="grid2"><div class="card"><h4>Response time (ms)</h4><svg viewBox="0 0 520 190" role="img" xmlns="http://www.w3.org/2000/svg"><line x1="46" y1="164.0" x2="508" y2="164.0" stroke="#ffffff14"/><text x="40" y="167.0" text-anchor="end" font-size="9" fill="#8b92b3">0</text><line x1="46" y1="126.5" x2="508" y2="126.5" stroke="#ffffff14"/><text x="40" y="129.5" text-anchor="end" font-size="9" fill="#8b92b3">20</text><line x1="46" y1="89.0" x2="508" y2="89.0" stroke="#ffffff14"/><text x="40" y="92.0" text-anchor="end" font-size="9" fill="#8b92b3">40</text><line x1="46" y1="51.5" x2="508" y2="51.5" stroke="#ffffff14"/><text x="40" y="54.5" text-anchor="end" font-size="9" fill="#8b92b3">60</text><line x1="46" y1="14.0" x2="508" y2="14.0" stroke="#ffffff14"/><text x="40" y="17.0" text-anchor="end" font-size="9" fill="#8b92b3">80</text><text x="46.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">0s</text><text x="161.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">14s</text><text x="277.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">28s</text><text x="392.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">41s</text><text x="508.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">55s</text><polyline points="46.0,157.8 88.0,160.4 130.0,160.6 172.0,161.0 214.0,161.0 256.0,161.0 298.0,161.2 340.0,161.2 382.0,161.4 424.0,161.2 466.0,161.4 508.0,161.4" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linejoin="round"/><polyline points="46.0,33.6 88.0,156.3 130.0,156.9 172.0,157.1 214.0,157.1 256.0,158.0 298.0,156.9 340.0,158.2 382.0,157.8 424.0,157.8 466.0,158.4 508.0,158.0" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linejoin="round"/><rect x="46" y="2" width="8" height="8" rx="2" fill="#22d3ee"/><text x="58" y="10" font-size="9" fill="#c9cee8">p50</text><rect x="80.2" y="2" width="8" height="8" rx="2" fill="#a78bfa"/><text x="92.2" y="10" font-size="9" fill="#c9cee8">p95</text><text x="508" y="10" text-anchor="end" font-size="9" fill="#8b92b3">ms</text></svg></div><div class="card"><h4>Throughput &amp; errors</h4><svg viewBox="0 0 520 190" role="img" xmlns="http://www.w3.org/2000/svg"><line x1="46" y1="164.0" x2="508" y2="164.0" stroke="#ffffff14"/><text x="40" y="167.0" text-anchor="end" font-size="9" fill="#8b92b3">0</text><line x1="46" y1="126.5" x2="508" y2="126.5" stroke="#ffffff14"/><text x="40" y="129.5" text-anchor="end" font-size="9" fill="#8b92b3">73</text><line x1="46" y1="89.0" x2="508" y2="89.0" stroke="#ffffff14"/><text x="40" y="92.0" text-anchor="end" font-size="9" fill="#8b92b3">145</text><line x1="46" y1="51.5" x2="508" y2="51.5" stroke="#ffffff14"/><text x="40" y="54.5" text-anchor="end" font-size="9" fill="#8b92b3">218</text><line x1="46" y1="14.0" x2="508" y2="14.0" stroke="#ffffff14"/><text x="40" y="17.0" text-anchor="end" font-size="9" fill="#8b92b3">290</text><text x="46.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">0s</text><text x="161.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">14s</text><text x="277.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">28s</text><text x="392.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">41s</text><text x="508.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">55s</text><polyline points="46.0,75.5 88.0,35.5 130.0,35.4 172.0,35.8 214.0,34.9 256.0,34.1 298.0,35.4 340.0,34.6 382.0,36.9 424.0,33.6 466.0,33.8 508.0,39.7" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linejoin="round"/><polyline points="46.0,164.0 88.0,164.0 130.0,164.0 172.0,164.0 214.0,164.0 256.0,164.0 298.0,164.0 340.0,164.0 382.0,164.0 424.0,164.0 466.0,164.0 508.0,164.0" fill="none" stroke="#f87171" stroke-width="1.8" stroke-linejoin="round"/><rect x="46" y="2" width="8" height="8" rx="2" fill="#34d399"/><text x="58" y="10" font-size="9" fill="#c9cee8">req/s</text><rect x="91.0" y="2" width="8" height="8" rx="2" fill="#f87171"/><text x="103.0" y="10" font-size="9" fill="#c9cee8">errors/bucket</text></svg></div><div class="card"><h4>CPU (%)</h4><svg viewBox="0 0 520 190" role="img" xmlns="http://www.w3.org/2000/svg"><line x1="46" y1="164.0" x2="508" y2="164.0" stroke="#ffffff14"/><text x="40" y="167.0" text-anchor="end" font-size="9" fill="#8b92b3">0</text><line x1="46" y1="126.5" x2="508" y2="126.5" stroke="#ffffff14"/><text x="40" y="129.5" text-anchor="end" font-size="9" fill="#8b92b3">25</text><line x1="46" y1="89.0" x2="508" y2="89.0" stroke="#ffffff14"/><text x="40" y="92.0" text-anchor="end" font-size="9" fill="#8b92b3">50</text><line x1="46" y1="51.5" x2="508" y2="51.5" stroke="#ffffff14"/><text x="40" y="54.5" text-anchor="end" font-size="9" fill="#8b92b3">75</text><line x1="46" y1="14.0" x2="508" y2="14.0" stroke="#ffffff14"/><text x="40" y="17.0" text-anchor="end" font-size="9" fill="#8b92b3">100</text><text x="46.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">0s</text><text x="161.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">14s</text><text x="277.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">28s</text><text x="392.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">41s</text><text x="508.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">55s</text><polyline points="46.0,126.7 88.0,132.3 130.0,135.9 172.0,139.4 214.0,138.3 256.0,146.4 298.0,143.2 340.0,148.8 382.0,148.1 424.0,143.9 466.0,150.1 508.0,149.6" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linejoin="round"/><polyline points="46.0,137.6 88.0,143.6 130.0,146.9 172.0,149.9 214.0,149.0 256.0,156.9 298.0,153.9 340.0,158.9 382.0,157.8 424.0,154.7 466.0,160.2 508.0,160.2" fill="none" stroke="#fb923c" stroke-width="1.8" stroke-linejoin="round"/><polyline points="46.0,132.1 88.0,132.7 130.0,135.8 172.0,138.9 214.0,138.1 256.0,146.4 298.0,143.0 340.0,148.6 382.0,147.5 424.0,143.9 466.0,149.8 508.0,151.7" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><rect x="46" y="2" width="8" height="8" rx="2" fill="#fbbf24"/><text x="58" y="10" font-size="9" fill="#c9cee8">host</text><rect x="85.6" y="2" width="8" height="8" rx="2" fill="#fb923c"/><text x="97.6" y="10" font-size="9" fill="#c9cee8">tomcat jvm</text><rect x="157.6" y="2" width="8" height="8" rx="2" fill="#94a3b8"/><text x="169.6" y="10" font-size="9" fill="#c9cee8">locust</text><text x="508" y="10" text-anchor="end" font-size="9" fill="#8b92b3">%</text></svg></div><div class="card"><h4>Network (KB/s) &amp; Tomcat JVM memory (MB RSS)</h4><svg viewBox="0 0 520 190" role="img" xmlns="http://www.w3.org/2000/svg"><line x1="46" y1="164.0" x2="508" y2="164.0" stroke="#ffffff14"/><text x="40" y="167.0" text-anchor="end" font-size="9" fill="#8b92b3">0</text><line x1="46" y1="126.5" x2="508" y2="126.5" stroke="#ffffff14"/><text x="40" y="129.5" text-anchor="end" font-size="9" fill="#8b92b3">704</text><line x1="46" y1="89.0" x2="508" y2="89.0" stroke="#ffffff14"/><text x="40" y="92.0" text-anchor="end" font-size="9" fill="#8b92b3">1408</text><line x1="46" y1="51.5" x2="508" y2="51.5" stroke="#ffffff14"/><text x="40" y="54.5" text-anchor="end" font-size="9" fill="#8b92b3">2113</text><line x1="46" y1="14.0" x2="508" y2="14.0" stroke="#ffffff14"/><text x="40" y="17.0" text-anchor="end" font-size="9" fill="#8b92b3">2817</text><text x="46.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">0s</text><text x="161.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">14s</text><text x="277.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">28s</text><text x="392.5" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">41s</text><text x="508.0" y="182" text-anchor="middle" font-size="9" fill="#8b92b3">55s</text><polyline points="46.0,84.3 88.0,40.1 130.0,33.8 172.0,35.9 214.0,36.5 256.0,35.1 298.0,33.6 340.0,36.6 382.0,36.0 424.0,35.2 466.0,34.2 508.0,37.3" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linejoin="round"/><polyline points="46.0,147.9 88.0,146.2 130.0,145.9 172.0,145.7 214.0,145.5 256.0,145.7 298.0,145.5 340.0,145.3 382.0,145.0 424.0,144.3 466.0,144.7 508.0,144.7" fill="none" stroke="#f472b6" stroke-width="1.8" stroke-linejoin="round"/><rect x="46" y="2" width="8" height="8" rx="2" fill="#60a5fa"/><text x="58" y="10" font-size="9" fill="#c9cee8">net KB/s</text><rect x="107.2" y="2" width="8" height="8" rx="2" fill="#f472b6"/><text x="119.2" y="10" font-size="9" fill="#c9cee8">tomcat jvm RSS MB</text></svg></div></div>
+<div class="card" style="margin-top:14px"><table class="num"><thead><tr><th>Endpoint</th><th>Req</th><th>Fail</th><th>avg</th><th>p50</th><th>p95</th><th>p99</th><th>max</th><th>vs baseline</th></tr></thead><tbody><tr><td>POST signon</td><td>2466</td><td>0</td><td>4</td><td>3</td><td><b>6</b></td><td>62</td><td>93</td><td></td></tr><tr><td>GET viewProduct</td><td>4875</td><td>0</td><td>3</td><td>2</td><td><b>4</b></td><td>55</td><td>87</td><td></td></tr><tr><td>GET viewCategory</td><td>7199</td><td>0</td><td>3</td><td>1</td><td><b>3</b></td><td>52</td><td>84</td><td></td></tr></tbody></table></div>
+
+
+<h2>Logs</h2><div class="grid2"><div class="card"><h4>Application log</h4><p class="m">166 lines scanned - levels: SEVERE 2</p><ul><li><code>ConnectException</code> Connection refused <small>x1 </small></li></ul><ul><li>Could not contact [localhost:8205] (base port [8205] and offset [0]). Tomcat may not be running.</li><li>Error stopping Catalina</li></ul></div><div class="card"><h4>JVM garbage collection</h4><p class="m">13 events - total pause 33.5 ms - max 5.5 ms - full GCs 0 - heap after GC (max) 32 MB</p></div></div>
+<h2>Findings</h2><div class="card"><p>No findings: no errors, regressions or steady-state spikes in this run.</p></div>
+
+<h2>Token usage</h2><div class="card"><p class="m">LLM tokens this run: <b>21860</b>. Deterministic steps (git, build, smoke, load, metrics, statistics, log parsing, report) never call the model.</p><table class=""><thead><tr><th>LLM step</th><th>Calls</th><th>Prompt</th><th>Completion</th></tr></thead><tbody><tr><td>heal</td><td>8</td><td>19709</td><td>2151</td></tr></tbody></table><ul><li><b>correlate</b> skipped - no errors, regressions or steady-state spikes to investigate</li></ul></div>
+<p class="foot">Locust and the application ran on the same machine (a shared CI runner), so absolute numbers are indicative and CPU contention is expected;
+use this report to compare runs and spot regressions. Load: 250 users for 60 s after a 21-request smoke test.</p>
+</div></body></html>

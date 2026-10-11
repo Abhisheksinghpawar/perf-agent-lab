@@ -676,5 +676,71 @@
       "skipped_llm_steps": []
     },
     "llm": "openai/gpt-oss-20b"
+  },
+  {
+    "run_id": "20261011-044356",
+    "finished_at": "2026-10-11T04:47:42+00:00",
+    "verdict": "healthy",
+    "duration_s": 226.7,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "short": "1ffdf1e9",
+      "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-09-19T12:28:59-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 21,
+      "healed": true,
+      "heal_attempts": 1
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 14540,
+      "rps": 243.15,
+      "error_rate": 0.0,
+      "p50": 1.6,
+      "p95": 4.1,
+      "p99": 54.1,
+      "failures": 0
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 0,
+      "regressions": 0
+    },
+    "logs": {
+      "exception_types": 1,
+      "gc_count": 13,
+      "gc_max_pause_ms": 5.5
+    },
+    "resources": {
+      "cpu_avg": 14.7,
+      "cpu_max": 33.1,
+      "java_cpu_avg": 7.7,
+      "java_rss_max_mb": 372.6,
+      "net_sent_mb": 68.32,
+      "net_recv_mb": 68.26
+    },
+    "findings": [],
+    "top_finding": null,
+    "improvements": [],
+    "top_improvement": null,
+    "summary": "No errors, regressions or steady-state spikes detected in this run.",
+    "tokens": {
+      "total": 21860,
+      "skipped_llm_steps": [
+        "correlate"
+      ]
+    },
+    "llm": "openai/gpt-oss-20b"
   }
 ]

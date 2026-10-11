@@ -83,6 +83,16 @@
       "run_id": "20261011-035500",
       "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
       "users": 250
+    },
+    {
+      "p95": {
+        "GET viewCategory": 3.2,
+        "GET viewProduct": 3.5,
+        "POST signon": 5.5
+      },
+      "run_id": "20261011-044356",
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "users": 250
     }
   ]
 }
