@@ -95,5 +95,88 @@
       ]
     },
     "llm": "off (deterministic)"
+  },
+  {
+    "run_id": "20261011-025214",
+    "finished_at": "2026-10-11T02:54:06+00:00",
+    "verdict": "attention",
+    "duration_s": 112.1,
+    "commit": {
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "short": "1ffdf1e9",
+      "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-09-19T12:28:59-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6"
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 74,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 49323,
+      "rps": 823.96,
+      "error_rate": 0.0001,
+      "p50": 1.9,
+      "p95": 9.7,
+      "p99": 23.8
+    },
+    "resources": {
+      "cpu_avg": 34.4,
+      "cpu_max": 76.6,
+      "java_cpu_avg": 18.8,
+      "java_rss_max_mb": 427.4,
+      "net_sent_mb": 233.44,
+      "net_recv_mb": 233.41
+    },
+    "findings": [
+      {
+        "title": "4 failed request(s) on POST /order/new (confirm)",
+        "severity": "medium"
+      }
+    ],
+    "top_finding": {
+      "title": "4 failed request(s) on POST /order/new (confirm)",
+      "severity": "medium",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "HTTP 500 x4 between 9.1s and 51.9s",
+        "HsqlException: integrity constraint violation: unique constraint or index violation ; PK_ORDERS table: ORDERS (x4)"
+      ],
+      "suspected_cause": "concurrent requests inserted the same primary key: id generation is probably a non-atomic read-then-increment (race condition)",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "OrderService.insertOrder (throws HsqlException)"
+        },
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 75,
+          "note": "primary key is generated here - check that it is atomic"
+        }
+      ],
+      "recommendation": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.",
+        "effort": "medium"
+      }
+    ],
+    "top_improvement": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.",
+    "summary": "1 item(s) need attention; the most important is: 4 failed request(s) on POST /order/new (confirm).",
+    "tokens": {
+      "total": 0,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "off (deterministic)"
   }
 ]

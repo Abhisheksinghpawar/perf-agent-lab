@@ -1,0 +1,51 @@
+[2026-10-11 02:53:00,089] runnervmmprz5/INFO/locust.main: Starting Locust 2.46.7
+[2026-10-11 02:53:00,090] runnervmmprz5/INFO/locust.main: Run time limit set to 60 seconds
+[2026-10-11 02:53:00,090] runnervmmprz5/INFO/locust.runners: Ramping to 250 users at a rate of 20.00 per second
+[2026-10-11 02:53:12,112] runnervmmprz5/INFO/locust.runners: All users spawned: {"Shopper": 250} (250 total users)
+[2026-10-11 02:53:59,936] runnervmmprz5/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-11 02:53:59,974] runnervmmprz5/INFO/locust.main: Shutting down (exit code 0)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /account (sign-on form)                                                      997     0(0.00%) |      2       0      29      2 |   16.65        0.00
+GET      GET /account/signoff                                                             997     0(0.00%) |      4       1      56      3 |   16.65        0.00
+GET      GET /cart                                                                       1994     0(0.00%) |      2       0      41      2 |   33.30        0.00
+GET      GET /cart/addItem                                                               2991     0(0.00%) |      3       0      48      2 |   49.95        0.00
+GET      GET /cart/checkout                                                               997     0(0.00%) |      2       0      31      2 |   16.65        0.00
+GET      GET /catalog                                                                    8840     0(0.00%) |      2       0      40      2 |  147.64        0.00
+GET      GET /catalog/searchProducts                                                     2002     0(0.00%) |      3       0      36      2 |   33.44        0.00
+GET      GET /catalog/viewCategory                                                       8839     0(0.00%) |      2       0      44      2 |  147.62        0.00
+GET      GET /catalog/viewItem                                                           8839     0(0.00%) |      3       0      45      2 |  147.62        0.00
+GET      GET /catalog/viewProduct                                                        8839     0(0.00%) |      3       0      40      2 |  147.62        0.00
+GET      GET /order/new                                                                   997     0(0.00%) |      2       0      30      2 |   16.65        0.00
+POST     POST /account/signon                                                             997     0(0.00%) |      6       1      59      3 |   16.65        0.00
+POST     POST /order/new (billing)                                                        997     0(0.00%) |      2       0      43      2 |   16.65        0.00
+POST     POST /order/new (confirm)                                                        997     4(0.40%) |      3       1      75      3 |   16.65        0.07
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                     49323     4(0.01%) |      3       0      75      2 |  823.75        0.07
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /account (sign-on form)                                                             2      2      3      3      5      9     20     23     29     29     29    997
+GET      GET /account/signoff                                                                    3      4      5      7      9     12     20     33     56     56     56    997
+GET      GET /cart                                                                               2      3      3      4      5      8     13     18     35     41     41   1994
+GET      GET /cart/addItem                                                                       2      3      3      4      6      9     16     22     35     49     49   2991
+GET      GET /cart/checkout                                                                      2      3      3      4      5      8     11     16     32     32     32    997
+GET      GET /catalog                                                                            2      2      3      3      5     10     19     23     32     40     40   8840
+GET      GET /catalog/searchProducts                                                             2      3      3      4      5     10     20     24     33     37     37   2002
+GET      GET /catalog/viewCategory                                                               2      2      3      3      5     10     18     22     34     44     44   8839
+GET      GET /catalog/viewItem                                                                   2      3      3      4      6     10     19     25     39     45     45   8839
+GET      GET /catalog/viewProduct                                                                2      3      3      4      6     10     20     25     33     40     40   8839
+GET      GET /order/new                                                                          2      2      3      3      5      7     10     14     31     31     31    997
+POST     POST /account/signon                                                                    3      5      6      7     11     24     40     51     59     59     59    997
+POST     POST /order/new (billing)                                                               2      3      3      4      5      7     11     14     43     43     43    997
+POST     POST /order/new (confirm)                                                               3      3      4      4      7      9     14     19     76     76     76    997
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                              2      3      3      4      6     10     18     24     38     55     76  49323
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+4                  POST POST /order/new (confirm): HTTP 500                                                            
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+
