@@ -612,5 +612,69 @@
       "skipped_llm_steps": []
     },
     "llm": "openai/gpt-oss-20b"
+  },
+  {
+    "run_id": "20261011-043417",
+    "finished_at": "2026-10-11T04:39:40+00:00",
+    "verdict": "failed",
+    "duration_s": 322.3,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "short": "1ffdf1e9",
+      "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-09-19T12:28:59-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": false,
+      "requests": 18,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 0,
+      "rps": 0,
+      "error_rate": 0,
+      "p50": 0,
+      "p95": 0,
+      "p99": 0,
+      "failures": 0
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 0,
+      "regressions": 0
+    },
+    "logs": {
+      "exception_types": 0,
+      "gc_count": 0,
+      "gc_max_pause_ms": 0
+    },
+    "resources": {
+      "cpu_avg": null,
+      "cpu_max": null,
+      "java_cpu_avg": null,
+      "java_rss_max_mb": null,
+      "net_sent_mb": null,
+      "net_recv_mb": null
+    },
+    "findings": [],
+    "top_finding": null,
+    "improvements": [],
+    "top_improvement": null,
+    "summary": "The sanity test failed and could not be repaired, so the load test was not run. error rate 100.0% (> 0.0%)",
+    "tokens": {
+      "total": 39347,
+      "skipped_llm_steps": []
+    },
+    "llm": "openai/gpt-oss-20b"
   }
 ]

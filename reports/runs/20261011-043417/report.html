@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance run 20261011-043417 - Run failed</title>
+<style>
+:root{--bg:#05060f;--card:#ffffff0a;--b:#ffffff17;--t:#e8ebf7;--m:#8b92b3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1100px 500px at 50% -10%,#14123a,var(--bg) 60%);color:var(--t);font:14px/1.55 Inter,system-ui,Segoe UI,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:36px 22px 70px}h1{font:600 28px/1.15 system-ui;margin:6px 0 4px}h2{font:600 18px system-ui;margin:34px 0 12px}h4{margin:0 0 8px;font-size:14px}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:600;font-size:12px;color:#05060f}.m{color:var(--m)}small{color:var(--m)}
+.card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:16px 18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.kpi{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:12px 14px}
+.kpi .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--m)}.kpi .v{font:600 22px system-ui}.kpi .s{font-size:11px;color:var(--m)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:7px 9px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500}table.num td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}table.num th:not(:first-child){text-align:right}
+ol.trace{list-style:none;padding:0;margin:0;display:grid;gap:6px}.st{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--b);border-radius:10px;padding:8px 12px}
+.st i{color:var(--m);font-style:normal;font-size:12px;flex:1}.st .d{color:var(--m);font-variant-numeric:tabular-nums;min-width:48px;text-align:right}.st.failed{border-color:#f87171}.st.skipped{opacity:.6}
+.b{font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:6px}.b.agent{background:#a78bfa;color:#05060f}.b.code{background:#ffffff1a;color:#c9cee8}
+.f{border-left:4px solid;margin-bottom:12px}.sev{font-size:10px;padding:2px 8px;border-radius:99px;color:#05060f;text-transform:uppercase;vertical-align:middle}.rec{font-size:10px;color:#fbbf24}
+ul.ev{margin:6px 0 8px 18px;padding:0}a{color:#22d3ee}pre{background:#00000055;border:1px solid var(--b);border-radius:10px;padding:12px;overflow:auto;font-size:11.5px}code{background:#ffffff14;padding:1px 5px;border-radius:5px}
+svg{width:100%;height:auto}.foot{margin-top:40px;color:var(--m);font-size:12px}@media(max-width:760px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="wrap">
+<div class="m">perf-agent-lab - automated performance run</div>
+<h1>JPetStore <span class="badge" style="background:#f87171">Run failed</span></h1>
+<div class="m">commit <a href="https://github.com/mybatis/jpetstore-6/commit/1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf" target="_blank" rel="noopener">1ffdf1e9</a> - Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x - run 20261011-043417 (UTC) - total 322.3 s - LLM: openai/gpt-oss-20b</div>
+<div class="card" style="margin-top:16px"><b>Summary.</b> The sanity test failed and could not be repaired, so the load test was not run. error rate 100.0% (&gt; 0.0%)</div>
+<div class="kpis"><div class="kpi"><div class="k">Requests</div><div class="v">0</div><div class="s">250 users, 60 s</div></div><div class="kpi"><div class="k">Throughput</div><div class="v">0 req/s</div><div class="s"></div></div><div class="kpi"><div class="k">p95 latency</div><div class="v">0 ms</div><div class="s">p50 0 / p99 0</div></div><div class="kpi"><div class="k">Error rate</div><div class="v">0.00%</div><div class="s">0 failed</div></div><div class="kpi"><div class="k">CPU (host)</div><div class="v">0%</div><div class="s">max 0%, Tomcat JVM avg 0%</div></div><div class="kpi"><div class="k">Tomcat JVM memory</div><div class="v">0 MB</div><div class="s">peak RSS</div></div><div class="kpi"><div class="k">Smoke test</div><div class="v">failed</div><div class="s">18 req</div></div><div class="kpi"><div class="k">LLM tokens</div><div class="v">39347</div><div class="s"></div></div></div>
+<h2>Pipeline</h2><ol class="trace"><li class="st ok"><span class="b code">CODE</span><b>Pull latest code</b><span class="d">0.64s</span><i>ok - 1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)</i></li><li class="st ok"><span class="b code">CODE</span><b>Build and start the application</b><span class="d">25.17s</span><i>ok - build 14.1s, ready after 11.0s</i></li><li class="st failed"><span class="b code">CODE</span><b>Sanity (smoke) test</b><span class="d">20.26s</span><i>failed - stale demo script: 18 req, 18 failed, p95 7.0 ms -&gt; FAILED: error rate 100.0% (&gt; 0.0%)</i></li><li class="st failed"><span class="b agent">AGENT</span><b>Self-heal the Locust script</b><span class="d">270.23s</span><i>failed - NOT healed after 0 attempt(s)</i></li><li class="st ok"><span class="b code">CODE</span><b>Build report and publish</b><span class="d">0s</span><i>ok - reports/runs/20261011-043417/report.html</i></li></ol>
+<h2>Self-healing</h2><div class="card"><p>The smoke test failed, so the repair agent rewrote the Locust script (0 attempt(s)): <b>not healed</b>. </p><table class=""><thead><tr><th>Attempt</th><th>Result</th><th>Stage</th><th>Notes</th></tr></thead><tbody><tr><td>0</td><td>fail</td><td>llm</td><td>LLM request failed with HTTP 400</td></tr></tbody></table></div>
+<h2>Results</h2>
+<div class="card" style="margin-top:14px"><p class=m>No endpoint data.</p></div>
+
+
+<h2>Logs</h2>
+<h2>Findings</h2><div class="card"><p>No findings: no errors, regressions or steady-state spikes in this run.</p></div>
+
+<h2>Token usage</h2><div class="card"><p class="m">LLM tokens this run: <b>39347</b>. Deterministic steps (git, build, smoke, load, metrics, statistics, log parsing, report) never call the model.</p><table class=""><thead><tr><th>LLM step</th><th>Calls</th><th>Prompt</th><th>Completion</th></tr></thead><tbody><tr><td>heal</td><td>14</td><td>37171</td><td>2176</td></tr></tbody></table></div>
+<p class="foot">Locust and the application ran on the same machine (a shared CI runner), so absolute numbers are indicative and CPU contention is expected;
+use this report to compare runs and spot regressions. Load: 250 users for 60 s after a 18-request smoke test.</p>
+</div></body></html>
