@@ -1,20 +1,4 @@
 {
-  "4a25f536bb": {
-    "category": "regression",
-    "endpoint": "POST /account/signon",
-    "first_seen": "20261011-030245",
-    "last_seen": "20261011-030245",
-    "seen_count": 1,
-    "title": "POST /account/signon is 446% slower than baseline"
-  },
-  "8169a7c757": {
-    "category": "regression",
-    "endpoint": "GET /account/signoff",
-    "first_seen": "20261011-030245",
-    "last_seen": "20261011-030245",
-    "seen_count": 1,
-    "title": "GET /account/signoff is 490% slower than baseline"
-  },
   "ef86c7544c": {
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",

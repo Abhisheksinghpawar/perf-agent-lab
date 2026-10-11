@@ -145,10 +145,14 @@ def main(argv: list[str] | None = None) -> int:
         try:
             # 6 ---- analyse -------------------------------------------------------------------------------------
             with ctx.step("analyze", "Analyze results") as ev:
-                state["analysis"] = analyze_skill.analyze(load["records"], load["metrics"], cfg, mem.baseline(int(cfg["load"]["users"])))
+                users = int(cfg["load"]["users"])
+                base_commits = mem.baseline_commits(users)
+                same_code = bool(base_commits) and base_commits == {git["sha"]}     # slower on identical code = runner variance
+                state["analysis"] = analyze_skill.analyze(load["records"], load["metrics"], cfg, mem.baseline(users), same_code)
                 a = state["analysis"]
                 ev["detail"] = (f"p95 {a['overall'].get('p95', 0)} ms, {len(a['spikes'])} spike(s), "
-                                f"{len(a['error_clusters'])} error cluster(s), verdict {a['verdict']}")
+                                f"{len(a['error_clusters'])} error cluster(s), verdict {a['verdict']}"
+                                + (f", {len(a['variance'])} slower on unchanged code (variance)" if a["variance"] else ""))
             # 7 ---- logs --------------------------------------------------------------------------------------------
             with ctx.step("logs", "Inspect application and GC logs") as ev:
                 parsed_logs = logs_skill.parse(ctx.out / "app.log")
@@ -210,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
             steady_spikes = [s for s in a["spikes"] if s["phase"] != "warm-up"]
             saturated = (a["resources"] or {}).get("cpu_saturated_s", 0) >= 10
             if not a["regressions"] and not steady_spikes and not saturated:      # latency is representative (errors are tracked separately)
-                mem.add_baseline_run(ctx.run_id, {e["name"]: e["p95"] for e in a["endpoints"]}, users=int(cfg["load"]["users"]))
+                mem.add_baseline_run(ctx.run_id, {e["name"]: e["p95"] for e in a["endpoints"]}, users=int(cfg["load"]["users"]), sha=git["sha"])
             mem.update_token_stats(ctx.tokens)
         print(f"\nVerdict: {ctx.verdict}  |  tokens used: {ctx.total_tokens()}  |  report: reports/runs/{ctx.run_id}/report.html")
     except Exception:  # noqa: BLE001

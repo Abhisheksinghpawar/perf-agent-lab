@@ -147,7 +147,8 @@ You get a compact evidence bundle. Investigate only what matters (max 3 issues):
 window and the exceptions (get_exceptions) around each spike/error, the resource window, and the code that handles the slow endpoint (find_handler first,
 then read_file around the returned line). Stay evidence-based: say 'unknown' when the evidence is thin; note that the
 load generator shares the machine with the app, so CPU contention is a possible cause. Issues already listed in
-already_known_issues should be marked recurring rather than re-investigated in depth.
+already_known_issues should be marked recurring rather than re-investigated in depth. Endpoints in slower_on_same_commit
+got slower although the code did not change: that is environment variance, not a regression - do not blame commits for it.
 
 Reply with ONLY one JSON object, no prose:
 {"summary": "2-3 sentence executive summary",
@@ -245,8 +246,8 @@ def correlate_heuristic(inv: Investigator, bundle: dict, analysis: dict, log_sum
     for r in analysis["regressions"][:2]:
         findings.append({"title": f"{r['endpoint']} is {r['delta_pct']:.0f}% slower than baseline", "severity": "medium", "category": "regression",
                          "endpoint": r["endpoint"], "evidence": [f"p95 {r['p95']} ms vs baseline {r['baseline_p95']} ms"],
-                         "suspected_cause": "change since the last run: " + (", ".join(bundle["commit"]["changed_files"][:3]) or "no file list available"),
-                         "code_refs": refs(r["endpoint"]), "recommendation": "Review the commits touching this handler since the previous run."})
+                         "suspected_cause": "the code changed since the baseline was recorded" + (": " + ", ".join(bundle["commit"]["changed_files"][:3]) if bundle["commit"]["changed_files"] else ""),
+                         "code_refs": refs(r["endpoint"]), "recommendation": "Review the recent commits that touch this handler, then re-run to rule out runner noise."})
     g = log_summary["gc"]
     if g["max_pause_ms"] >= 100 or g["full_gc"]:
         findings.append({"title": f"GC pauses up to {g['max_pause_ms']} ms ({g['full_gc']} full GC)", "severity": "medium", "category": "gc",
@@ -266,4 +267,7 @@ def correlate_heuristic(inv: Investigator, bundle: dict, analysis: dict, log_sum
         summary = f"{len(findings)} item(s) need attention; the most important is: {findings[0]['title']}."
     else:
         summary = "No errors, regressions or steady-state spikes detected in this run."
+    if analysis.get("variance"):
+        summary += (f" {len(analysis['variance'])} endpoint(s) were slower than baseline on unchanged code;"
+                    " treated as runner variance, not a regression.")
     return {"summary": summary, "findings": findings, "improvements": improvements}

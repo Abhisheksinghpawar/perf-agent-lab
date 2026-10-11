@@ -90,6 +90,9 @@ def build_html(R: dict) -> str:
         ep_rows.append([e(ep["name"]), str(ep["count"]), f'{ep["failures"]}', f'{ep["avg"]:.0f}', f'{ep["p50"]:.0f}', f'<b>{ep["p95"]:.0f}</b>',
                         f'{ep["p99"]:.0f}', f'{ep["max"]:.0f}', delta])
     endpoints = _table(["Endpoint", "Req", "Fail", "avg", "p50", "p95", "p99", "max", "vs baseline"], ep_rows, "num") if ep_rows else ""
+    var = an.get("variance") or []
+    var_note = ('<p class="m" style="margin-top:10px">Slower than baseline on the same commit, so treated as runner variance rather than a regression: '
+                + ", ".join(f'{e(v["endpoint"])} ({v["delta_pct"]:+.0f}%)' for v in var) + ".</p>") if var else ""
 
     spikes = ""
     if an.get("spikes"):
@@ -193,7 +196,7 @@ svg{{width:100%;height:auto}}.foot{{margin-top:40px;color:var(--m);font-size:12p
 <h2>Pipeline</h2><ol class="trace">{"".join(steps)}</ol>
 {heal}
 <h2>Results</h2>{charts}
-<div class="card" style="margin-top:14px">{endpoints or "<p class=m>No endpoint data.</p>"}</div>
+<div class="card" style="margin-top:14px">{endpoints or "<p class=m>No endpoint data.</p>"}{var_note}</div>
 {"<h2>Latency spikes</h2><div class='card'>" + spikes + "</div>" if spikes else ""}
 {"<h2>Errors</h2><div class='card'>" + errors + "</div>" if errors else ""}
 <h2>Logs</h2>{log_html}

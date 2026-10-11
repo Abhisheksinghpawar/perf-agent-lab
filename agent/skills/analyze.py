@@ -16,12 +16,14 @@ def _stats(values: list[float]) -> dict:
             "p99": round(percentile(values, 99), 1), "max": round(max(values), 1)}
 
 
-def analyze(records: list[dict], metrics: list[dict], cfg: dict, baseline: dict | None = None) -> dict:
+def analyze(records: list[dict], metrics: list[dict], cfg: dict, baseline: dict | None = None, same_code: bool = False) -> dict:
+    """same_code: every baseline run used this exact commit, so an endpoint that got slower is environment variance
+    (e.g. a busy shared CI runner), not a code regression. It is reported as `variance` and does not change the verdict."""
     a = cfg["analysis"]
     baseline = baseline or {}
     if not records:
         return {"overall": {"requests": 0}, "endpoints": [], "timeline": [], "spikes": [], "error_clusters": [],
-                "resources": {}, "resource_timeline": [], "regressions": [], "improvements": [], "verdict": "attention",
+                "resources": {}, "resource_timeline": [], "regressions": [], "variance": [], "improvements": [], "verdict": "attention",
                 "reasons": ["no requests were recorded"]}
 
     t0 = min(r["ts"] for r in records)
@@ -36,7 +38,7 @@ def analyze(records: list[dict], metrics: list[dict], cfg: dict, baseline: dict 
     by_ep: dict[str, list[dict]] = defaultdict(list)
     for r in records:
         by_ep[r["name"]].append(r)
-    endpoints, regressions, improvements = [], [], []
+    endpoints, regressions, variance, improvements = [], [], [], []
     for name, rs in by_ep.items():
         st = _stats([x["rt"] for x in rs])
         f = sum(1 for x in rs if not x.get("ok"))
@@ -48,7 +50,7 @@ def analyze(records: list[dict], metrics: list[dict], cfg: dict, baseline: dict 
         if base:
             diff = st["p95"] - base
             if delta is not None and delta > float(a["regression_pct"]) and diff > float(a["regression_min_ms"]):
-                regressions.append({"endpoint": name, "p95": st["p95"], "baseline_p95": base, "delta_pct": delta})
+                (variance if same_code else regressions).append({"endpoint": name, "p95": st["p95"], "baseline_p95": base, "delta_pct": delta})
             elif delta is not None and delta < -float(a["regression_pct"]) and -diff > float(a["regression_min_ms"]):
                 improvements.append({"endpoint": name, "p95": st["p95"], "baseline_p95": base, "delta_pct": delta})
     endpoints.sort(key=lambda e: e["p95"], reverse=True)
@@ -158,7 +160,7 @@ def analyze(records: list[dict], metrics: list[dict], cfg: dict, baseline: dict 
         reasons.append(f"CPU above {a['cpu_saturation_pct']}% for {res['cpu_saturated_s']} s")
     return {"overall": overall, "endpoints": endpoints, "timeline": timeline, "spikes": spikes,
             "error_clusters": error_clusters, "resources": res, "resource_timeline": res_timeline,
-            "regressions": regressions, "improvements": improvements,
+            "regressions": regressions, "variance": variance, "improvements": improvements,
             "verdict": "attention" if reasons else "healthy", "reasons": reasons}
 
 
@@ -180,6 +182,7 @@ def evidence_bundle(analysis: dict, git_info: dict, log_summary: dict, known: di
                                       "cpu_avg", "java_cpu_avg")} for s in analysis["spikes"][:4]],
         "error_clusters": analysis["error_clusters"][:5],
         "regressions": analysis["regressions"][:5],
+        "slower_on_same_commit": analysis.get("variance", [])[:5],
         "resources": {k: analysis["resources"].get(k) for k in ("cpu_avg", "cpu_max", "cpu_saturated_s", "java_cpu_avg",
                                                                  "java_rss_max_mb", "java_rss_growth_mb_per_min",
                                                                  "net_sent_mb", "net_recv_mb", "locust_cpu_avg")},

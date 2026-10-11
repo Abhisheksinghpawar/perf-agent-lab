@@ -40,6 +40,14 @@ class AnalyzeTests(unittest.TestCase):
         a = analyze.analyze(recs, make_metrics(t0), CFG, base)
         self.assertEqual([r["endpoint"] for r in a["regressions"]], ["GET /catalog/viewProduct"])
 
+    def test_slower_on_the_same_commit_is_variance_not_a_regression(self):
+        recs, t0 = make_records()
+        base = {"GET /catalog/viewProduct": {"p95": 20.0}, "GET /cart": {"p95": 80.0}}
+        a = analyze.analyze(recs, make_metrics(t0), CFG, base, same_code=True)
+        self.assertEqual(a["regressions"], [])
+        self.assertEqual([v["endpoint"] for v in a["variance"]], ["GET /catalog/viewProduct"])
+        self.assertEqual(a["verdict"], "healthy")                    # runner noise must not raise an alarm
+
     def test_cpu_saturation_flags_attention(self):
         recs, t0 = make_records()
         a = analyze.analyze(recs, make_metrics(t0, cpu=95), CFG)

@@ -1,7 +1,7 @@
 """Persistent memory between runs: this is what makes later runs cheap.
 
 memory/state.json          last tested commit  -> unchanged code = whole run skipped (zero compute, zero tokens)
-memory/baseline.json       per-endpoint p95 from recent healthy runs -> later runs only analyse the *delta*
+memory/baseline.json       per-endpoint p95 from recent healthy runs (+ commit) -> later runs only analyse the *delta*
 memory/known_issues.json   fingerprints of past findings -> recurring issues are labelled, not re-investigated
 memory/locustfile.good.py  last locustfile that passed the smoke test -> self-healing only runs when it stops working
 memory/token_stats.json    tokens each LLM step used last time -> lets the report estimate what a skipped step saved
@@ -53,9 +53,14 @@ class Memory:
                 by_ep.setdefault(ep, []).append(p95)
         return {ep: {"p95": round(statistics.median(v), 1), "n": len(v)} for ep, v in by_ep.items()}
 
-    def add_baseline_run(self, run_id: str, endpoint_p95: dict[str, float], keep: int = 10, users: int | None = None):
+    def baseline_commits(self, users: int | None = None) -> set:
+        """Commits the baseline at this load level was recorded on (None = recorded before commits were tracked)."""
+        return {r.get("sha") for r in self._read("baseline.json", {}).get("runs", []) if users is None or r.get("users") == users}
+
+    def add_baseline_run(self, run_id: str, endpoint_p95: dict[str, float], keep: int = 10, users: int | None = None,
+                         sha: str | None = None):
         data = self._read("baseline.json", {"runs": []})
-        data["runs"] = (data.get("runs", []) + [{"run_id": run_id, "users": users, "p95": endpoint_p95}])[-keep:]
+        data["runs"] = (data.get("runs", []) + [{"run_id": run_id, "users": users, "sha": sha, "p95": endpoint_p95}])[-keep:]
         self._write("baseline.json", data)
 
     # ---- known issues -------------------------------------------------------------------------

@@ -18,6 +18,14 @@ class BaselineAndRecurrenceTests(unittest.TestCase):
         self.assertEqual(self.m.baseline(250)["ep"]["p95"], 140.0)
         self.assertEqual(self.m.baseline(100), {})                       # never compare against a different load
 
+    def test_baseline_remembers_the_commits_it_was_recorded_on(self):
+        self.m.add_baseline_run("r1", {"ep": 8.0}, users=250, sha="abc")
+        self.m.add_baseline_run("r2", {"ep": 9.0}, users=250, sha="abc")
+        self.m.add_baseline_run("r3", {"ep": 7.0}, users=25, sha="old")
+        self.assertEqual(self.m.baseline_commits(250), {"abc"})
+        self.m.add_baseline_run("r4", {"ep": 9.0}, users=250)                 # recorded before commits were tracked
+        self.assertEqual(self.m.baseline_commits(250), {"abc", None})
+
     def test_recurrence_survives_changing_numbers_in_titles(self):
         a = {"title": "126 failed request(s) on POST /order/new (confirm)", "endpoint": "POST /order/new (confirm)", "category": "errors"}
         b = {"title": "153 failed request(s) on POST /order/new (confirm)", "endpoint": "POST /order/new (confirm)", "category": "errors"}

@@ -89,6 +89,19 @@ class CorrelateTests(unittest.TestCase):
         cats = {f["category"] for f in out["findings"]}
         self.assertTrue({"latency", "errors"} <= cats)
         self.assertTrue(out["improvements"])
+
+    def test_variance_is_explained_not_blamed_on_commits(self):
+        logs = {"log_lines": 0, "levels": {}, "exceptions": [], "warnings": [], "gc": {"count": 0, "total_pause_ms": 0, "max_pause_ms": 0, "full_gc": 0, "heap_after_max_mb": 0}}
+        a = {**self.analysis, "regressions": [], "variance": [{"endpoint": "GET /cart", "p95": 90.0, "baseline_p95": 20.0, "delta_pct": 350.0}]}
+        out = correlate.correlate_heuristic(self.inv, {"commit": {"changed_files": []}}, a, logs)
+        self.assertNotIn("regression", {f["category"] for f in out["findings"]})
+        self.assertIn("runner variance", out["summary"])
+        R = {"run_id": "20261011-000000", "verdict": "healthy", "duration_s": 1, "summary": out["summary"],
+             "commit": {"sha": "a" * 40, "short": "aaaaaaaa", "subject": "s", "date": "", "repo": "https://github.com/x/y", "changed_files": []},
+             "smoke": {"passed": True, "requests": 20, "failures": 0, "p95_ms": 50, "reasons": [], "top_failures": []}, "heal": None,
+             "analysis": a, "logs": logs, "findings": [], "improvements": [], "load": {"users": 250, "duration_s": 60}, "llm_mode": "off",
+             "tokens": {"total": 0, "by_step": {}, "skipped": []}, "trace": []}
+        self.assertIn("treated as runner variance", report.build_html(R))
         spike = next(f for f in out["findings"] if f["category"] == "latency")
         self.assertTrue(spike["code_refs"] and spike["code_refs"][0]["file"].endswith("CatalogController.java"))
 
