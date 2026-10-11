@@ -1,0 +1,132 @@
+{
+  "run_id": "20261011-042459",
+  "finished_at": "2026-10-11T04:26:08+00:00",
+  "duration_s": 69.4,
+  "verdict": "failed",
+  "commit": {
+    "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+    "short": "1ffdf1e9",
+    "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+    "date": "2026-09-19T12:28:59-04:00",
+    "repo": "https://github.com/mybatis/jpetstore-6",
+    "changed_files": [],
+    "subdir": "",
+    "branch": "master"
+  },
+  "target": {
+    "name": "JPetStore",
+    "process_label": "Tomcat JVM",
+    "runner": "maven-cargo"
+  },
+  "smoke": {
+    "passed": false,
+    "requests": 21,
+    "failures": 21,
+    "error_rate": 1.0,
+    "p95_ms": 4.3,
+    "reasons": [
+      "error rate 100.0% (> 0.0%)"
+    ],
+    "top_failures": [
+      {
+        "endpoint": "GET viewCategory.do",
+        "status": "404",
+        "error": "category page broken: HTTP 404",
+        "count": 11
+      },
+      {
+        "endpoint": "GET viewProduct.do",
+        "status": "404",
+        "error": "product page broken: HTTP 404",
+        "count": 6
+      },
+      {
+        "endpoint": "POST signon.do",
+        "status": "404",
+        "error": "login broken: HTTP 404",
+        "count": 4
+      }
+    ],
+    "locustfile": "/home/runner/work/perf-agent-lab/perf-agent-lab/out/20261011-042459/locust/locustfile.py",
+    "wall_s": 20.3
+  },
+  "heal": {
+    "healed": false,
+    "attempts": 0,
+    "history": [
+      {
+        "attempt": 0,
+        "passed": false,
+        "reasons": [
+          "LLM unreachable after retries (HTTP 429)"
+        ],
+        "stage": "llm"
+      }
+    ],
+    "diff": "",
+    "source": null,
+    "summary": ""
+  },
+  "analysis": null,
+  "logs": null,
+  "findings": [],
+  "improvements": [],
+  "summary": "The sanity test failed and could not be repaired, so the load test was not run. error rate 100.0% (> 0.0%)",
+  "load": {
+    "users": 250,
+    "duration_s": 60
+  },
+  "llm_mode": "openai/gpt-oss-20b",
+  "tokens": {
+    "total": 7312,
+    "by_step": {
+      "heal": {
+        "prompt": 6988,
+        "completion": 324,
+        "calls": 5
+      }
+    },
+    "skipped": []
+  },
+  "trace": [
+    {
+      "key": "pull",
+      "title": "Pull latest code",
+      "kind": "code",
+      "status": "ok",
+      "detail": "1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)",
+      "duration_s": 0.32
+    },
+    {
+      "key": "env",
+      "title": "Build and start the application",
+      "kind": "code",
+      "status": "ok",
+      "detail": "build 14.5s, ready after 11.0s",
+      "duration_s": 25.57
+    },
+    {
+      "key": "sanity",
+      "title": "Sanity (smoke) test",
+      "kind": "code",
+      "status": "failed",
+      "detail": "stale demo script: 21 req, 21 failed, p95 4.3 ms -> FAILED: error rate 100.0% (> 0.0%)",
+      "duration_s": 20.27
+    },
+    {
+      "key": "heal",
+      "title": "Self-heal the Locust script",
+      "kind": "agent",
+      "status": "failed",
+      "detail": "NOT healed after 0 attempt(s)",
+      "duration_s": 17.17
+    },
+    {
+      "key": "report",
+      "title": "Build report and publish",
+      "kind": "code",
+      "status": "ok",
+      "detail": "reports/runs/20261011-042459/report.html"
+    }
+  ]
+}
