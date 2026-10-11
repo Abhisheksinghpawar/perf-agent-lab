@@ -178,5 +178,117 @@
       ]
     },
     "llm": "off (deterministic)"
+  },
+  {
+    "run_id": "20261011-030245",
+    "finished_at": "2026-10-11T03:04:42+00:00",
+    "verdict": "attention",
+    "duration_s": 117.4,
+    "commit": {
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "short": "1ffdf1e9",
+      "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-09-19T12:28:59-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6"
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 67,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 51286,
+      "rps": 856.96,
+      "error_rate": 0.0002,
+      "p50": 5.1,
+      "p95": 46.1,
+      "p99": 91.0,
+      "failures": 12
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 2
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 116,
+      "gc_max_pause_ms": 13.5
+    },
+    "resources": {
+      "cpu_avg": 43.7,
+      "cpu_max": 84.6,
+      "java_cpu_avg": 22.4,
+      "java_rss_max_mb": 375.3,
+      "net_sent_mb": 243.24,
+      "net_recv_mb": 243.17
+    },
+    "findings": [
+      {
+        "title": "12 failed request(s) on POST /order/new (confirm)",
+        "severity": "high"
+      },
+      {
+        "title": "POST /account/signon is 446% slower than baseline",
+        "severity": "medium"
+      },
+      {
+        "title": "GET /account/signoff is 490% slower than baseline",
+        "severity": "medium"
+      }
+    ],
+    "top_finding": {
+      "title": "12 failed request(s) on POST /order/new (confirm)",
+      "severity": "high",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "HTTP 500 x12 between 1.4s and 27.5s",
+        "HsqlException: integrity constraint violation: unique constraint or index violation ; PK_ORDERS table: ORDERS (x12)"
+      ],
+      "suspected_cause": "concurrent requests inserted the same primary key: id generation is probably a non-atomic read-then-increment (race condition)",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "OrderService.insertOrder (throws HsqlException)"
+        },
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 75,
+          "note": "primary key is generated here - check that it is atomic"
+        }
+      ],
+      "recommendation": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.",
+        "effort": "medium"
+      },
+      {
+        "priority": 2,
+        "action": "Review the commits touching this handler since the previous run.",
+        "effort": "medium"
+      },
+      {
+        "priority": 3,
+        "action": "Review the commits touching this handler since the previous run.",
+        "effort": "medium"
+      }
+    ],
+    "top_improvement": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.",
+    "summary": "3 item(s) need attention; the most important is: 12 failed request(s) on POST /order/new (confirm).",
+    "tokens": {
+      "total": 0,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "off (deterministic)"
   }
 ]
