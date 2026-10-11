@@ -179,7 +179,7 @@ def main(argv: list[str] | None = None) -> int:
                     with ctx.step("correlate", "Correlate with logs, code and recent commits", "agent") as ev:
                         result = correlate.correlate_agent(llm, inv, bundle, cfg["target"]["name"])
                         state["analysis_by"] = "llm" if result else "rules"
-                        ev["detail"] = ("LLM agent with code/log tools" if result
+                        ev["detail"] = ((f"LLM agent with code/log tools" + (f" ({result['dropped']} noise finding(s) dropped)" if result.get("dropped") else "")) if result
                                         else f"agent gave no usable answer ({llm.last_error or 'no reason recorded'}) - using rule-based analysis")
                 if result is None:
                     with ctx.step("correlate_rules", "Correlate with logs and code (rule-based)") as ev:

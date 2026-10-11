@@ -107,6 +107,7 @@ class App:
             env = {**os.environ, "PYTHONUNBUFFERED": "1"}
             self.proc = subprocess.Popen(self._expand(self.t["start_cmd"]), shell=True, cwd=self.workdir, env=env,
                                          stdout=logf, stderr=subprocess.STDOUT)
+        logf.close()                                      # the child keeps its own copy of the handle
         self.wait_healthy()
         return round(time.time() - t0, 1)
 

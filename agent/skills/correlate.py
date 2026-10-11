@@ -190,7 +190,7 @@ SYSTEM = """You are a senior performance engineer reviewing one short load test 
 You get a compact evidence bundle. Investigate only what matters (max 3 issues): use the tools to look at the log
 window and the exceptions (get_exceptions) around each spike/error, the resource window, and the code that handles the slow endpoint (find_handler first,
 then read_file around the returned line). Stay evidence-based: say 'unknown' when the evidence is thin; note that the
-load generator shares the machine with the app, so CPU contention is a possible cause. Use at most 5 tool calls in total, then reply. Issues already listed in
+load generator shares the machine with the app, so CPU contention is a possible cause. Use at most 5 tool calls in total, then reply. List improvements by impact, starting with the fix for the most severe finding; ignore latency differences of a few milliseconds. Issues already listed in
 already_known_issues should be marked recurring rather than re-investigated in depth. Endpoints in slower_on_same_commit
 got slower although the code did not change: that is environment variance, not a regression - do not blame commits for it.
 
@@ -200,6 +200,40 @@ Reply with ONLY one JSON object, no prose:
                "endpoint": "... or null", "evidence": ["short facts with numbers"], "suspected_cause": "...",
                "code_refs": [{"file": "path", "line": 123, "note": "..."}], "recommendation": "concrete fix"}],
  "improvements": [{"priority": 1, "action": "...", "expected_impact": "...", "effort": "low|medium|high"}]}"""
+
+
+WORD = re.compile(r"[a-z]{4,}")
+
+
+def _overlap(a: str, b: str) -> int:
+    return len(set(WORD.findall(a.lower())) & set(WORD.findall(b.lower())))
+
+
+def tidy_llm_result(data: dict, analysis: dict) -> dict:
+    """Guard rails around an LLM's answer (models over-report and mis-rank):
+    * latency/regression findings are kept only for endpoints the analysis itself flagged (a regression or a steady-state
+      spike); small differences within run-to-run noise are dropped and mentioned once in the summary
+    * findings are ordered by severity, and improvements by relevance to the most severe finding, so the real bug comes first."""
+    flagged = {r["endpoint"] for r in analysis.get("regressions", [])}
+    flagged |= {e["name"] for s in analysis.get("spikes", []) if s.get("phase") != "warm-up" for e in s.get("top_endpoints", [])}
+    kept, dropped = [], []
+    for f in data.get("findings", []):
+        slow_claim = f.get("category") in ("latency", "regression")
+        if slow_claim and (not flagged or (f.get("endpoint") and f["endpoint"] not in flagged)):
+            dropped.append(f)
+        else:
+            kept.append(f)
+    kept.sort(key=lambda f: SEVERITY_ORDER.get(f.get("severity"), 9))
+    out = {**data, "findings": kept, "dropped": len(dropped)}
+    if kept and data.get("improvements"):
+        top = " ".join(str(kept[0].get(k, "")) for k in ("title", "suspected_cause", "recommendation", "endpoint"))
+        imps = sorted(data["improvements"], key=lambda i: -_overlap(f"{i.get('action', '')} {i.get('expected_impact', '')}", top))
+        out["improvements"] = [{**i, "priority": n} for n, i in enumerate(imps, 1)]
+    if dropped:
+        note = f" {len(dropped)} small latency difference(s) were within run-to-run noise and are not treated as findings."
+        out["summary"] = (f"{len(kept)} item(s) need attention; the most important is: {kept[0]['title']}." if kept
+                          else "No errors, regressions or steady-state spikes detected in this run.") + note
+    return out
 
 
 def correlate_agent(llm: LLM, inv: Investigator, bundle: dict, app_name: str = "the app under test") -> dict | None:
@@ -228,7 +262,7 @@ def correlate_agent(llm: LLM, inv: Investigator, bundle: dict, app_name: str = "
     data["findings"] = [f for f in data.get("findings", []) if isinstance(f, dict) and f.get("title")][:6]
     data.setdefault("improvements", [])
     data.setdefault("summary", "")
-    return data
+    return tidy_llm_result(data, inv.analysis)
 
 
 # ======================================================================================================
