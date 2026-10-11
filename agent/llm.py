@@ -40,12 +40,12 @@ class LLM:
         url = f"{self.base_url}/chat/completions"
         headers = {"Authorization": f"Bearer {self.key}", "Content-Type": "application/json"}
         last = None
-        for attempt in range(4):
+        for attempt in range(6):
             try:
                 r = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
                 if r.status_code in (429, 500, 502, 503, 504):
                     last = f"HTTP {r.status_code}"
-                    time.sleep(2 ** attempt)
+                    time.sleep(self._backoff(r, attempt))
                     continue
                 if r.status_code >= 400:
                     # Do not echo the body into logs/reports: providers may include account identifiers.
@@ -55,6 +55,18 @@ class LLM:
                 last = type(exc).__name__
                 time.sleep(2 ** attempt)
         raise LLMUnavailable(f"LLM unreachable after retries ({last})")
+
+    @staticmethod
+    def _backoff(resp, attempt: int) -> float:
+        """Seconds to wait before retrying. A rate limit (429) names its own wait in `Retry-After`; free tiers cap tokens per
+        minute, so waiting as told (up to 45 s) beats hammering the API with 1-2 s retries."""
+        try:
+            hinted = float(resp.headers.get("retry-after", ""))
+        except (TypeError, ValueError):
+            hinted = 0.0
+        if resp.status_code == 429:
+            return min(max(hinted, 5.0 * (attempt + 1)), 45.0)
+        return min(max(hinted, 2.0 ** attempt), 20.0)
 
     def chat(self, step: str, messages: list[dict], tools: dict[str, Tool] | None = None) -> dict:
         payload = {"model": self.model, "messages": messages, "temperature": 0.2, "max_tokens": self.max_out}
@@ -95,7 +107,7 @@ class LLM:
                 if on_tool:
                     on_tool(name, args if isinstance(args, dict) else {}, result)
                 text = json.dumps(result, default=str)
-                messages.append({"role": "tool", "tool_call_id": call.get("id", name), "content": text[:6000]})
+                messages.append({"role": "tool", "tool_call_id": call.get("id", name), "content": text[:4000]})          # every turn resends the history: keep tool results small (tokens-per-minute limits)
         # budget exhausted: ask for a final answer without tools
         messages.append({"role": "user", "content": "Tool budget exhausted. Give your final answer now."})
         return (self.chat(step, messages).get("content") or "").strip()

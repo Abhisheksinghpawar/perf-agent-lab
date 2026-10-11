@@ -72,11 +72,11 @@ def _page_tool(base_url: str):
         r = requests.get(base_url + path, timeout=15)
         body = r.text
         import re
-        links = sorted(set(re.findall(r'href="([^"#]+)"', body)))[:40]
+        links = sorted(set(re.findall(r'href="([^"#]+)"', body)))[:25]
         forms = re.findall(r"<form[^>]*>", body)[:5]
         inputs = re.findall(r"<input[^>]*name=\"([^\"]+)\"[^>]*>", body)[:25]
         return {"status": r.status_code, "content_type": r.headers.get("content-type", ""), "links": links,
-                "forms": forms, "input_names": inputs, "body_start": body[:1800]}
+                "forms": forms, "input_names": inputs, "body_start": body[:900]}
     return fetch_page
 
 
