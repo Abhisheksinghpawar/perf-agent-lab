@@ -205,8 +205,12 @@ Reply with ONLY one JSON object, no prose:
 WORD = re.compile(r"[a-z]{4,}")
 
 
+def _stems(text: str) -> set:
+    return {w[:5] for w in WORD.findall(text.lower())}                # crude stemming: order/orders, generate/generator
+
+
 def _overlap(a: str, b: str) -> int:
-    return len(set(WORD.findall(a.lower())) & set(WORD.findall(b.lower())))
+    return len(_stems(a) & _stems(b))
 
 
 def tidy_llm_result(data: dict, analysis: dict) -> dict:
@@ -227,7 +231,13 @@ def tidy_llm_result(data: dict, analysis: dict) -> dict:
     out = {**data, "findings": kept, "dropped": len(dropped)}
     if kept and data.get("improvements"):
         top = " ".join(str(kept[0].get(k, "")) for k in ("title", "suspected_cause", "recommendation", "endpoint"))
-        imps = sorted(data["improvements"], key=lambda i: -_overlap(f"{i.get('action', '')} {i.get('expected_impact', '')}", top))
+        every = " ".join(str(f.get(k, "")) for f in kept for k in ("title", "suspected_cause", "recommendation", "endpoint"))
+        score = lambda i: _overlap(f"{i.get('action', '')} {i.get('expected_impact', '')}", top)  # noqa: E731
+        imps = sorted(data["improvements"], key=lambda i: -score(i))
+        if dropped:                                     # improvements born from dropped findings must not outlive them
+            rel = lambda i: _overlap(f"{i.get('action', '')} {i.get('expected_impact', '')}", every)  # noqa: E731
+            best = max(rel(i) for i in imps)
+            imps = [i for i in imps if rel(i) >= max(1, 0.4 * best)] or imps[:1]
         out["improvements"] = [{**i, "priority": n} for n, i in enumerate(imps, 1)]
     if dropped:
         note = f" {len(dropped)} small latency difference(s) were within run-to-run noise and are not treated as findings."

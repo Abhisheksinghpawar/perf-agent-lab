@@ -31,9 +31,25 @@ class GuardRailTests(unittest.TestCase):
         self.assertEqual([f["title"][:9] for f in out["findings"]], ["Duplicate"])
         self.assertEqual(out["dropped"], 2)
         self.assertIn("order", out["improvements"][0]["action"].lower())          # the fix for the bug is now #1
-        self.assertEqual([i["priority"] for i in out["improvements"]], [1, 2, 3])
+        self.assertEqual(len(out["improvements"]), 1)                              # the load-generator and index advice came from dropped findings
+        self.assertEqual(out["improvements"][0]["priority"], 1)
         self.assertIn("2 small latency difference(s)", out["summary"])
         self.assertNotIn("elevated latency", out["summary"].lower())             # the model's own summary no longer claims it
+
+    def test_improvements_stay_when_nothing_was_dropped(self):
+        data = {"summary": "x", "findings": [REAL["findings"][1]], "improvements": REAL["improvements"]}
+        out = tidy_llm_result(data, QUIET)
+        self.assertEqual(len(out["improvements"]), 3)
+        self.assertIn("OrderService", out["improvements"][0]["action"])
+
+    def test_the_live_run_case_order_and_orders_match(self):
+        data = {"summary": "x", "improvements": [
+            {"action": "Cache favourite category product list during signon", "effort": "medium"},
+            {"action": "Implement robust unique ID generation for orders", "effort": "high"},
+            {"action": "Add caching and indexing for catalog view endpoints", "effort": "medium"}],
+            "findings": [REAL["findings"][1], REAL["findings"][0], REAL["findings"][2]]}
+        out = tidy_llm_result(data, QUIET)
+        self.assertEqual([i["action"] for i in out["improvements"]], ["Implement robust unique ID generation for orders"])
 
     def test_a_flagged_regression_is_kept(self):
         analysis = {"regressions": [{"endpoint": "POST /account/signon"}], "spikes": [], "variance": []}
