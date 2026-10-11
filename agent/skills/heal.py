@@ -95,6 +95,12 @@ Rules:
 - When it passes, reply with one short sentence describing what you changed. No code in the final reply."""
 
 
+def coverage_reduced(endpoint_count: int, baseline_endpoints: int, ratio: float = 0.6) -> bool:
+    """A repaired script that passes the smoke test can still have dropped journeys (e.g. checkout). Compare how many distinct
+    endpoints it exercises with how many earlier healthy runs covered."""
+    return bool(baseline_endpoints) and endpoint_count < ratio * baseline_endpoints
+
+
 def _landing(cfg: dict) -> str:
     """The app's landing page (links, forms) up front: saves the model several exploratory fetches (= tokens and minutes)."""
     t = cfg["target"]
@@ -133,9 +139,9 @@ def heal(cfg: dict, llm: LLM, ctx, broken: Path, smoke_result: dict, out: Path) 
         shutil.copy(broken.parent / "recorder.py", cand.parent / "recorder.py")
         res = run_smoke(cfg, cand, heal_dir, tag=f"attempt{n}")
         state["history"].append({"attempt": n, "passed": res["passed"], "reasons": res["reasons"], "stage": "smoke",
-                                 "requests": res["requests"], "failures": res["failures"]})
+                                 "requests": res["requests"], "failures": res["failures"], "endpoints": res.get("endpoint_count", 0)})
         if res["passed"]:
-            state["passed"], state["source"] = True, content
+            state["passed"], state["source"], state["endpoint_count"] = True, content, res.get("endpoint_count", 0)
         return {"accepted": True, "smoke_passed": res["passed"], "requests": res["requests"], "failures": res["failures"],
                 "reasons": res["reasons"], "top_failures": res["top_failures"][:4]}
 
@@ -178,4 +184,4 @@ def heal(cfg: dict, llm: LLM, ctx, broken: Path, smoke_result: dict, out: Path) 
         (heal_dir / "locustfile.healed.py").write_text(state["source"], encoding="utf-8")
         (heal_dir / "heal.diff").write_text(diff, encoding="utf-8")
     return {"healed": state["passed"], "attempts": state["attempts"], "history": state["history"],
-            "diff": diff, "source": state["source"], "summary": summary if state["passed"] else ""}   # never repeat an unverified claim
+            "diff": diff, "source": state["source"], "endpoint_count": state.get("endpoint_count", 0), "summary": summary if state["passed"] else ""}   # never repeat an unverified claim

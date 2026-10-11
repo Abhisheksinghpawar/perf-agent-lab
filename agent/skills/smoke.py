@@ -22,7 +22,8 @@ def evaluate(records: list[dict], smoke_cfg: dict) -> dict:
     kinds = Counter((r.get("name", "?"), str(r.get("status", "")), (r.get("err") or "")[:120]) for r in fails)
     top = [{"endpoint": k[0], "status": k[1], "error": k[2], "count": c} for k, c in kinds.most_common(6)]
     return {"passed": not reasons, "requests": total, "failures": len(fails), "error_rate": round(rate, 4),
-            "p95_ms": round(p95, 1), "reasons": reasons, "top_failures": top}
+            "p95_ms": round(p95, 1), "reasons": reasons, "top_failures": top,
+            "endpoint_count": len({r.get("name") for r in records})}
 
 
 def run_smoke(cfg: dict, locustfile: Path, out: Path, tag: str = "smoke") -> dict:

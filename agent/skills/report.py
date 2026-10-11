@@ -155,6 +155,9 @@ def build_html(R: dict) -> str:
         heal = ('<h2>Self-healing</h2><div class="card">'
                 f'<p>The smoke test failed, so the repair agent rewrote the Locust script ({h["attempts"]} attempt(s)): '
                 f'<b>{"healed" if h["healed"] else "not healed"}</b>. {e(h.get("summary", ""))}</p>'
+                + (f'<p style="color:#fbbf24">Coverage warning: the repaired script exercises {h.get("endpoint_count")} endpoints, earlier runs covered '
+                   f'{h.get("baseline_endpoints")}. Review it before trusting this run; it was not saved as the known-good script.</p>'
+                   if h.get("reduced_coverage") else "") +
                 f'{_table(["Attempt", "Result", "Stage", "Notes"], rows) if rows else ""}'
                 f'{"<pre>" + e(h["diff"][:5000]) + "</pre>" if h.get("diff") else ""}</div>')
 

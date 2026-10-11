@@ -119,7 +119,10 @@ def main(argv: list[str] | None = None) -> int:
                 ev["detail"] = f"{'healed' if h['healed'] else 'NOT healed'} after {h['attempts']} attempt(s)"
                 if h["healed"]:
                     locustfile.write_text(h["source"], encoding="utf-8")
-                    mem.save_good_locustfile(h["source"])
+                    h["baseline_endpoints"] = len(mem.baseline(int(cfg["load"]["users"])))
+                    h["reduced_coverage"] = heal.coverage_reduced(h["endpoint_count"], h["baseline_endpoints"])
+                    if not h["reduced_coverage"] and not args.demo_heal:       # never promote a thinner or artificial script
+                        mem.save_good_locustfile(h["source"])
                     state["smoke"] = {**state["smoke"], "passed": True}
                     state["smoke"]["healed_requests"] = h["history"][-1].get("requests", 0)
                 else:
@@ -189,6 +192,11 @@ def main(argv: list[str] | None = None) -> int:
             ctx.verdict = state["analysis"]["verdict"]
             if state["findings"] and ctx.verdict == "healthy":
                 ctx.verdict = "attention"
+            hl = state["heal"] or {}
+            if hl.get("reduced_coverage"):
+                ctx.verdict = "attention" if ctx.verdict == "healthy" else ctx.verdict
+                state["summary"] += (f" Warning: the repaired script exercises {hl['endpoint_count']} endpoints, earlier runs covered "
+                                     f"{hl['baseline_endpoints']}; review it before trusting this run.")
         except Exception as exc:  # noqa: BLE001
             traceback.print_exc()
             ctx.verdict = "failed"
@@ -222,7 +230,8 @@ def main(argv: list[str] | None = None) -> int:
             a = state["analysis"]
             steady_spikes = [s for s in a["spikes"] if s["phase"] != "warm-up"]
             saturated = (a["resources"] or {}).get("cpu_saturated_s", 0) >= 10
-            if not a["regressions"] and not steady_spikes and not saturated:      # latency is representative (errors are tracked separately)
+            thin = (state["heal"] or {}).get("reduced_coverage")
+            if not a["regressions"] and not steady_spikes and not saturated and not thin and not args.demo_heal:   # representative runs only
                 mem.add_baseline_run(ctx.run_id, {e["name"]: e["p95"] for e in a["endpoints"]}, users=int(cfg["load"]["users"]), sha=git["sha"])
             mem.update_token_stats(ctx.tokens)
         print(f"\nVerdict: {ctx.verdict}  |  tokens used: {ctx.total_tokens()}  |  report: reports/runs/{ctx.run_id}/report.html")
