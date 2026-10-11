@@ -178,7 +178,9 @@ def main(argv: list[str] | None = None) -> int:
                 if llm.enabled:
                     with ctx.step("correlate", "Correlate with logs, code and recent commits", "agent") as ev:
                         result = correlate.correlate_agent(llm, inv, bundle, cfg["target"]["name"])
-                        ev["detail"] = "LLM agent with code/log tools" if result else "agent gave no usable answer - using rule-based analysis"
+                        state["analysis_by"] = "llm" if result else "rules"
+                        ev["detail"] = ("LLM agent with code/log tools" if result
+                                        else f"agent gave no usable answer ({llm.last_error or 'no reason recorded'}) - using rule-based analysis")
                 if result is None:
                     with ctx.step("correlate_rules", "Correlate with logs and code (rule-based)") as ev:
                         result = correlate.correlate_heuristic(inv, bundle, state["analysis"], state["logs"])
@@ -214,6 +216,7 @@ def main(argv: list[str] | None = None) -> int:
                 "smoke": state["smoke"], "heal": state["heal"], "analysis": state["analysis"], "logs": state["logs"],
                 "findings": state["findings"], "improvements": state["improvements"], "summary": state["summary"],
                 "load": {"users": int(cfg["load"]["users"]), "duration_s": int(cfg["load"]["duration_s"])},
+                "analysis_by": state.get("analysis_by", "rules"),
                 "llm_mode": "off (deterministic)" if not llm.enabled else ("scripted demo (no real model)" if llm.model == "scripted-demo" else llm.model),
                 "tokens": {"total": ctx.total_tokens(), "by_step": ctx.tokens, "skipped": skipped},
                 "trace": ctx.trace(),

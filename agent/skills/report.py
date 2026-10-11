@@ -61,6 +61,9 @@ def build_html(R: dict) -> str:
     res = an.get("resources") or {}
     tgt = R.get("target") or {}
     plabel = tgt.get("process_label") or "Tomcat JVM"
+    llm_note = ""                                            # say who actually wrote the findings
+    if R.get("tokens", {}).get("total"):
+        llm_note = " - findings by the LLM agent" if R.get("analysis_by") == "llm" else " - findings by the rule-based fallback"
     has_repo = bool(commit.get("repo"))                      # a local folder without a git remote has nothing to link to
     repo_blob = f"{commit['repo']}/blob/{commit['sha']}/" + (commit["subdir"].strip("/") + "/" if commit.get("subdir") else "")
     commit_html = (f'<a href="{e(commit["repo"])}/commit/{e(commit["sha"])}" target="_blank" rel="noopener">{e(commit["short"])}</a>'
@@ -203,7 +206,7 @@ svg{{width:100%;height:auto}}.foot{{margin-top:40px;color:var(--m);font-size:12p
 </style></head><body><div class="wrap">
 <div class="m">perf-agent-lab - automated performance run</div>
 <h1>{e(tgt.get("name") or commit["repo"].split("github.com/")[-1] or "Performance run")} <span class="badge" style="background:{vcolor}">{e(verdict_label)}</span></h1>
-<div class="m">commit {commit_html} - {e(commit["subject"])} - run {e(R["run_id"])} (UTC) - total {R["duration_s"]} s - LLM: {e(R.get("llm_mode", "off"))}</div>
+<div class="m">commit {commit_html} - {e(commit["subject"])} - run {e(R["run_id"])} (UTC) - total {R["duration_s"]} s - LLM: {e(R.get("llm_mode", "off"))}{llm_note}</div>
 <div class="card" style="margin-top:16px"><b>Summary.</b> {e(R["summary"])}</div>
 <div class="kpis">{kpis}</div>
 <h2>Pipeline</h2><ol class="trace">{"".join(steps)}</ol>

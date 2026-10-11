@@ -190,7 +190,7 @@ SYSTEM = """You are a senior performance engineer reviewing one short load test 
 You get a compact evidence bundle. Investigate only what matters (max 3 issues): use the tools to look at the log
 window and the exceptions (get_exceptions) around each spike/error, the resource window, and the code that handles the slow endpoint (find_handler first,
 then read_file around the returned line). Stay evidence-based: say 'unknown' when the evidence is thin; note that the
-load generator shares the machine with the app, so CPU contention is a possible cause. Issues already listed in
+load generator shares the machine with the app, so CPU contention is a possible cause. Use at most 5 tool calls in total, then reply. Issues already listed in
 already_known_issues should be marked recurring rather than re-investigated in depth. Endpoints in slower_on_same_commit
 got slower although the code did not change: that is environment variance, not a regression - do not blame commits for it.
 
@@ -204,12 +204,26 @@ Reply with ONLY one JSON object, no prose:
 
 def correlate_agent(llm: LLM, inv: Investigator, bundle: dict, app_name: str = "the app under test") -> dict | None:
     import json
+    nudges = {"n": 0}
+
+    def on_text(reply: str):
+        """Small models answer in prose or run out of turns: ask twice for the JSON object before giving up."""
+        d = extract_json(reply)
+        if (isinstance(d, dict) and "findings" in d) or nudges["n"] >= 2:
+            return None
+        nudges["n"] += 1
+        return "Your reply was not the required JSON object. Reply now with ONLY that JSON object (no prose, no code fences), based on what you have learned."
+
+    llm.last_error = ""
     try:
-        text = llm.run_agent("correlate", SYSTEM.replace("{app}", app_name), "Evidence bundle:\n" + json.dumps(bundle, default=str), _tools(inv))
-    except LLMUnavailable:
+        text = llm.run_agent("correlate", SYSTEM.replace("{app}", app_name), "Evidence bundle:\n" + json.dumps(bundle, default=str), _tools(inv),
+                             on_text=on_text, max_turns=8, max_tokens=3000)
+    except LLMUnavailable as exc:
+        llm.last_error = str(exc)
         return None
     data = extract_json(text)
     if not isinstance(data, dict) or "findings" not in data:
+        llm.last_error = "reply was not the required JSON: " + (text[:120].replace("\n", " ") or "(empty)")
         return None
     data["findings"] = [f for f in data.get("findings", []) if isinstance(f, dict) and f.get("title")][:6]
     data.setdefault("improvements", [])

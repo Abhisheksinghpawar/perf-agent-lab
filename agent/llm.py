@@ -32,6 +32,8 @@ class LLM:
         self.max_out = int(c.get("max_output_tokens", 1500))
         self.timeout = int(c.get("timeout_s", 90))
         self.ctx = ctx
+        self.last_text = ""                             # final reply of the last agent run / why it failed (for the report trace)
+        self.last_error = ""
         self.transport = transport                      # tests inject a fake: (payload) -> response dict
         self.enabled = bool(enabled and (self.key or transport))
 
@@ -128,7 +130,8 @@ class LLM:
                     messages.append({"role": "user", "content": "The task is not complete: the tools have not accepted a result yet. "
                                                                 "Do not just describe a change - call the tool now."})
                     continue
-                return (msg.get("content") or "").strip()
+                self.last_text = (msg.get("content") or "").strip()
+                return self.last_text
             for call in calls:
                 fn = call["function"]
                 name = fn["name"]
@@ -147,7 +150,8 @@ class LLM:
         # budget exhausted: ask for a final answer without tools
         messages.append({"role": "user", "content": "Tool budget exhausted. Give your final answer now."})
         # tools stay defined (the history contains tool calls, which providers reject without them) but cannot be used now
-        return (self.chat(step, messages, tools, max_tokens, tool_choice="none").get("content") or "").strip()
+        self.last_text = (self.chat(step, messages, tools, max_tokens, tool_choice="none").get("content") or "").strip()
+        return self.last_text
 
 
 def extract_json(text: str):
@@ -160,7 +164,7 @@ def extract_json(text: str):
             part = part.strip()
             if part.startswith("json"):
                 part = part[4:].strip()
-            if part[:1] in "{[":
+            if part[:1] and part[:1] in "{[":              # ("" in "{[" is True: skip the empty piece before the first fence)
                 t = part
                 break
     for opener, closer in (("{", "}"), ("[", "]")):

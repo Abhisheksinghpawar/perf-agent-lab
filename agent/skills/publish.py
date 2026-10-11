@@ -48,6 +48,7 @@ def summary_of(R: dict) -> dict:
         "summary": R["summary"],
         "tokens": {"total": R["tokens"]["total"], "skipped_llm_steps": [s["step"] for s in R["tokens"]["skipped"]]},
         "llm": R.get("llm_mode", "off"),
+        "analysis_by": R.get("analysis_by", "rules"),
     }
 
 
