@@ -15,6 +15,14 @@
     "seen_count": 1,
     "title": "Elevated latency on catalog view endpoints"
   },
+  "6aba1f33d5": {
+    "category": "errors",
+    "endpoint": "POST /order/new",
+    "first_seen": "20261011-050408",
+    "last_seen": "20261011-050408",
+    "seen_count": 1,
+    "title": "Duplicate Order ID causing 500 errors on POST /order/new"
+  },
   "ef86c7544c": {
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",

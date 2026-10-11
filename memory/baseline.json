@@ -125,6 +125,27 @@
       "run_id": "20261011-045856",
       "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
       "users": 250
+    },
+    {
+      "p95": {
+        "GET /account (sign-on form)": 35.7,
+        "GET /account/signoff": 49.0,
+        "GET /cart": 32.8,
+        "GET /cart/addItem": 35.6,
+        "GET /cart/checkout": 31.9,
+        "GET /catalog": 36.4,
+        "GET /catalog/searchProducts": 39.1,
+        "GET /catalog/viewCategory": 37.6,
+        "GET /catalog/viewItem": 39.8,
+        "GET /catalog/viewProduct": 40.1,
+        "GET /order/new": 28.5,
+        "POST /account/signon": 72.6,
+        "POST /order/new (billing)": 29.1,
+        "POST /order/new (confirm)": 32.3
+      },
+      "run_id": "20261011-050408",
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "users": 250
     }
   ]
 }
