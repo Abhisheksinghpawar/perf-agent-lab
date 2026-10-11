@@ -1,0 +1,81 @@
+[
+  {
+    "key": "pull",
+    "title": "Pull latest code",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)",
+    "duration_s": 1.39
+  },
+  {
+    "key": "env",
+    "title": "Build and start the application",
+    "kind": "code",
+    "status": "ok",
+    "detail": "build 17.0s, ready after 11.0s",
+    "duration_s": 28.05
+  },
+  {
+    "key": "sanity",
+    "title": "Sanity (smoke) test",
+    "kind": "code",
+    "status": "ok",
+    "detail": "default script: 82 req, 0 failed, p95 77.5 ms",
+    "duration_s": 20.42
+  },
+  {
+    "key": "heal",
+    "title": "Self-heal the Locust script",
+    "kind": "agent",
+    "status": "skipped",
+    "detail": "smoke test passed - no repair needed",
+    "duration_s": 0
+  },
+  {
+    "key": "load",
+    "title": "Run the load test (250 users, 60 s)",
+    "kind": "code",
+    "status": "ok",
+    "detail": "52854 requests, 59 resource samples",
+    "duration_s": 60.37
+  },
+  {
+    "key": "analyze",
+    "title": "Analyze results",
+    "kind": "code",
+    "status": "ok",
+    "detail": "p95 8.1 ms, 0 spike(s), 1 error cluster(s), verdict healthy",
+    "duration_s": 0.11
+  },
+  {
+    "key": "logs",
+    "title": "Inspect application and GC logs",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1339 lines, 2 exception type(s), 131 GC events",
+    "duration_s": 0.08
+  },
+  {
+    "key": "correlate",
+    "title": "Correlate with logs, code and recent commits",
+    "kind": "agent",
+    "status": "ok",
+    "detail": "agent gave no usable answer - using rule-based analysis",
+    "duration_s": 138.18
+  },
+  {
+    "key": "correlate_rules",
+    "title": "Correlate with logs and code (rule-based)",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1 finding(s)",
+    "duration_s": 0.01
+  },
+  {
+    "key": "report",
+    "title": "Build report and publish",
+    "kind": "code",
+    "status": "ok",
+    "detail": "reports/runs/20261011-045057/report.html"
+  }
+]
