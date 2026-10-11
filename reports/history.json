@@ -384,5 +384,105 @@
       ]
     },
     "llm": "off (deterministic)"
+  },
+  {
+    "run_id": "20261011-035500",
+    "finished_at": "2026-10-11T03:56:47+00:00",
+    "verdict": "attention",
+    "duration_s": 107.4,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
+      "short": "1ffdf1e9",
+      "subject": "Merge pull request #1186 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-09-19T12:28:59-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 72,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 52758,
+      "rps": 880.81,
+      "error_rate": 0.0002,
+      "p50": 1.7,
+      "p95": 8.3,
+      "p99": 40.2,
+      "failures": 13
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 0
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 149,
+      "gc_max_pause_ms": 11.0
+    },
+    "resources": {
+      "cpu_avg": 33.6,
+      "cpu_max": 72.9,
+      "java_cpu_avg": 17.8,
+      "java_rss_max_mb": 425.5,
+      "net_sent_mb": 250.17,
+      "net_recv_mb": 250.15
+    },
+    "findings": [
+      {
+        "title": "13 failed request(s) on POST /order/new (confirm)",
+        "severity": "high"
+      }
+    ],
+    "top_finding": {
+      "title": "13 failed request(s) on POST /order/new (confirm)",
+      "severity": "high",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "HTTP 500 x13 between 1.3s and 37.7s",
+        "HsqlException: integrity constraint violation: unique constraint or index violation ; PK_ORDERS table: ORDERS (x13)"
+      ],
+      "suspected_cause": "concurrent requests inserted the same primary key: id generation is probably a non-atomic read-then-increment (race condition)",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "OrderService.insertOrder (throws HsqlException)"
+        },
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 75,
+          "note": "primary key is generated here - check that it is atomic"
+        }
+      ],
+      "recommendation": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.",
+        "effort": "medium"
+      }
+    ],
+    "top_improvement": "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.",
+    "summary": "1 item(s) need attention; the most important is: 13 failed request(s) on POST /order/new (confirm).",
+    "tokens": {
+      "total": 0,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "off (deterministic)"
   }
 ]

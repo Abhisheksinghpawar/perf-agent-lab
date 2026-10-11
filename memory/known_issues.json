@@ -3,8 +3,8 @@
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
     "first_seen": "20261010-234546",
-    "last_seen": "20261011-031056",
-    "seen_count": 4,
-    "title": "7 failed request(s) on POST /order/new (confirm)"
+    "last_seen": "20261011-035500",
+    "seen_count": 5,
+    "title": "13 failed request(s) on POST /order/new (confirm)"
   }
 }
