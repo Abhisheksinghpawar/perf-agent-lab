@@ -20,8 +20,8 @@ p95_ms_limit     = 2000
 max_heal_attempts = 3
 
 [load]                        # the real test: short on purpose (1 minute)
-users      = 100
-spawn_rate = 20
+users      = 250              # the level at which JPetStore's order-id race shows up
+spawn_rate = 50
 duration_s = 60
 
 [analysis]

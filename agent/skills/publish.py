@@ -23,8 +23,8 @@ def _top_finding(findings: list[dict]) -> dict | None:
 
 def summary_of(R: dict) -> dict:
     """The compact record used for latest.json and history.json."""
-    o = (R.get("analysis") or {}).get("overall", {})
-    res = (R.get("analysis") or {}).get("resources", {}) or {}
+    an, lg = R.get("analysis") or {}, R.get("logs") or {}
+    o, res, gc = an.get("overall", {}), an.get("resources", {}) or {}, lg.get("gc") or {}
     sm, heal = R["smoke"], R.get("heal") or {}
     return {
         "run_id": R["run_id"], "finished_at": R["finished_at"], "verdict": R["verdict"], "duration_s": R["duration_s"],
@@ -33,7 +33,11 @@ def summary_of(R: dict) -> dict:
                   "heal_attempts": heal.get("attempts", 0)},
         "load": {"users": R["load"]["users"], "duration_s": R["load"]["duration_s"], "requests": o.get("requests", 0),
                  "rps": o.get("rps", 0), "error_rate": o.get("error_rate", 0), "p50": o.get("p50", 0), "p95": o.get("p95", 0),
-                 "p99": o.get("p99", 0)},
+                 "p99": o.get("p99", 0), "failures": o.get("failures", 0)},
+        "analysis": {"spikes": len(an.get("spikes") or []), "error_clusters": len(an.get("error_clusters") or []),
+                     "regressions": len(an.get("regressions") or [])},
+        "logs": {"exception_types": len(lg.get("exceptions") or []), "gc_count": gc.get("count", 0),
+                 "gc_max_pause_ms": gc.get("max_pause_ms", 0)},
         "resources": {k: res.get(k) for k in ("cpu_avg", "cpu_max", "java_cpu_avg", "java_rss_max_mb", "net_sent_mb", "net_recv_mb")},
         "findings": [{"title": f["title"], "severity": f.get("severity", "info")} for f in R["findings"][:5]],
         "top_finding": _top_finding(R["findings"]),

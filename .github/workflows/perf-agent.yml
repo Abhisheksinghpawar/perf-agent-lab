@@ -19,8 +19,8 @@ on:
         type: boolean
         default: true
       users:
-        description: "Concurrent users for the 1-minute load test"
-        default: "25"
+        description: "Concurrent users for the 1-minute load test (empty = config.toml)"
+        default: "250"
 
 concurrency:
   group: perf-agent
@@ -66,7 +66,8 @@ jobs:
           USE_LLM: ${{ github.event.inputs.use_llm }}
           USERS: ${{ github.event.inputs.users }}
         run: |
-          args=(--set "load.users=${USERS:-25}")
+          args=()
+          [ -n "$USERS" ] && args+=(--set "load.users=$USERS")     # nightly runs use config.toml
           [ "$FORCE" = "true" ] && args+=(--force)
           [ "$DEMO_HEAL" = "true" ] && args+=(--demo-heal)
           [ "$USE_LLM" = "false" ] && args+=(--no-llm)

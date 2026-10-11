@@ -63,7 +63,7 @@ flowchart LR
 | 1 | **Pull latest code** | code | `git fetch`, compare HEAD with the last tested SHA, list changed files. Same SHA means the run ends here. |
 | 2 | **Sanity test** | code | Build and start the app (Maven + Tomcat), then Locust with 1 user for 20 s. Checks status codes, page content, error rate, p95. |
 | 3 | **Self-heal** | **agent** | Only if step 2 fails. The agent reads the script, fetches live pages, and submits a replacement; every proposal is validated and smoke-tested. Max 3 attempts. |
-| 4 | **Load test** | code | 100 users for 60 s over four journeys (browse, search, add to cart, sign-in-to-order). `psutil` samples CPU, memory, network and the Tomcat JVM every second. |
+| 4 | **Load test** | code | 250 users for 60 s over four journeys (browse, search, add to cart, sign-in-to-order). `psutil` samples CPU, memory, network and the Tomcat JVM every second. |
 | 5 | **Analyze** | code | p50/p90/p95/p99, throughput, error clusters, latency spikes (rolling median) and a comparison with the baseline *at the same load level*. |
 | 6 | **Inspect logs** | code | Tomcat output, stack traces (first *application* frame), MyBatis SQL context, JVM GC pauses, aligned with the load timeline. |
 | 7 | **Correlate with code** | **agent** | Only if something is anomalous. Read-only tools: `get_spike`, `get_exceptions`, `get_log_window`, `get_resource_window`, `find_handler`, `grep_code`, `read_file`, `git_log`. A rule-based fallback gives the same output without an LLM. |
@@ -113,7 +113,7 @@ flowchart LR
 |---|---|---|---|
 | `target` | `repo_url`, `branch`, `ref`, `app_package` | JPetStore, `master`, `""` | system under test; pin a commit; which stack frames count as "our" code |
 | `smoke` | `users`, `duration_s`, `min_requests`, `max_error_rate`, `p95_ms_limit`, `max_heal_attempts` | 1, 20, 12, 0.0, 2000, 3 | sanity-test pass criteria |
-| `load` | `users`, `spawn_rate`, `duration_s` | 100, 20, 60 | the real test |
+| `load` | `users`, `spawn_rate`, `duration_s` | 250, 50, 60 | the real test |
 | `analysis` | `window_s`, `spike_factor`, `spike_min_ms`, `regression_pct`, ... | 5, 2.5, 250, 25 | detection thresholds |
 | `llm` | `base_url`, `model`, `api_key_env`, `max_tool_turns` | Groq, gpt-oss-20b | provider settings |
 

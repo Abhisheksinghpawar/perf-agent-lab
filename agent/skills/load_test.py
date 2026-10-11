@@ -1,4 +1,4 @@
-"""Skill 5 - the real load test (default: 25 users for 60 seconds) with infrastructure sampling running alongside."""
+"""Skill 5 - the real load test (default: 250 users for 60 seconds, see config.toml) with infrastructure sampling running alongside."""
 from __future__ import annotations
 
 from pathlib import Path
