@@ -1,0 +1,41 @@
+[
+  {
+    "key": "pull",
+    "title": "Pull latest code",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1ffdf1e9 Merge pull request #1186 from mybatis/renovate/com.codeborne (unchanged)",
+    "duration_s": 1.11
+  },
+  {
+    "key": "env",
+    "title": "Build and start the application",
+    "kind": "code",
+    "status": "ok",
+    "detail": "build 19.0s, ready after 11.0s",
+    "duration_s": 30.06
+  },
+  {
+    "key": "sanity",
+    "title": "Sanity (smoke) test",
+    "kind": "code",
+    "status": "failed",
+    "detail": "stale demo script: 21 req, 21 failed, p95 4.3 ms -> FAILED: error rate 100.0% (> 0.0%)",
+    "duration_s": 20.43
+  },
+  {
+    "key": "heal",
+    "title": "Self-heal the Locust script",
+    "kind": "agent",
+    "status": "failed",
+    "detail": "NOT healed after 0 attempt(s)",
+    "duration_s": 103.33
+  },
+  {
+    "key": "report",
+    "title": "Build report and publish",
+    "kind": "code",
+    "status": "ok",
+    "detail": "reports/runs/20261011-042837/report.html"
+  }
+]
