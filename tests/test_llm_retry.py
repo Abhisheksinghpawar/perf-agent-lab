@@ -59,5 +59,41 @@ class RetryTests(unittest.TestCase):
         self.assertEqual(post.call_count, 1)
 
 
+class NudgeTests(unittest.TestCase):
+    """Real models sometimes say 'done' without calling the tool that does the work."""
+
+    def run_with(self, replies, until, max_turns=6):
+        sent, applied = [], []
+
+        def transport(payload):
+            sent.append(payload)
+            r = replies[min(len(sent) - 1, len(replies) - 1)]
+            msg = {"content": r} if r != "TOOL" else {"content": None, "tool_calls": [{"id": "1", "type": "function", "function": {"name": "apply", "arguments": "{}"}}]}
+            return {"usage": {"prompt_tokens": 1, "completion_tokens": 1}, "choices": [{"message": msg}]}
+
+        tools = {"apply": ({"description": "d", "type": "object", "properties": {}}, lambda: applied.append(1) or {"ok": True})}
+        out = LLM(CFG, Ctx(), transport=transport).run_agent("t", "s", "u", tools, until=until(applied), max_turns=max_turns)
+        return out, sent, applied
+
+    def test_a_claim_without_the_tool_call_is_not_accepted(self):
+        out, sent, applied = self.run_with(["I fixed it!", "TOOL", "Done."], lambda applied: (lambda: bool(applied)))
+        self.assertEqual((out, len(applied), len(sent)), ("Done.", 1, 3))
+        self.assertIn("call the tool now", sent[1]["messages"][-1]["content"])
+
+    def test_it_gives_up_after_two_nudges_instead_of_looping(self):
+        out, sent, applied = self.run_with(["I fixed it!"], lambda applied: (lambda: False))
+        self.assertEqual((out, len(applied), len(sent)), ("I fixed it!", 0, 3))
+
+    def test_no_nudge_when_the_work_is_verified(self):
+        out, sent, _ = self.run_with(["TOOL", "All good."], lambda applied: (lambda: bool(applied)))
+        self.assertEqual((out, len(sent)), ("All good.", 2))
+
+    def test_without_until_behaviour_is_unchanged(self):
+        sent = []
+        llm = LLM(CFG, Ctx(), transport=lambda p: sent.append(p) or {"choices": [{"message": {"content": "hi"}}]})
+        self.assertEqual(llm.run_agent("t", "s", "u", {}), "hi")
+        self.assertEqual(len(sent), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

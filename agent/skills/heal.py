@@ -87,6 +87,7 @@ Rules:
 - Use fetch_page() to look at the real pages (links, form field names) and fix URLs, parameters and response checks.
 - Submit your fix with propose_locustfile(content). It validates the file and re-runs the smoke test for you and
   returns the result. Iterate until it passes. You have a small attempt budget; make each attempt count.
+- You MUST call propose_locustfile: describing a fix in text, without submitting it, counts as failure.
 - When it passes, reply with one short sentence describing what you changed. No code in the final reply."""
 
 
@@ -140,7 +141,8 @@ def heal(cfg: dict, llm: LLM, ctx, broken: Path, smoke_result: dict, out: Path) 
 
     summary = ""
     try:
-        summary = llm.run_agent("heal", SYSTEM, user, tools)
+        summary = llm.run_agent("heal", SYSTEM, user, tools, until=lambda: state["passed"] or state["attempts"] >= max_attempts,
+                                max_turns=14, max_tokens=4000)      # a full script plus reasoning needs more than the default budget
     except LLMUnavailable as exc:
         state["history"].append({"attempt": state["attempts"], "passed": False, "reasons": [str(exc)], "stage": "llm"})
 
@@ -151,4 +153,4 @@ def heal(cfg: dict, llm: LLM, ctx, broken: Path, smoke_result: dict, out: Path) 
         (heal_dir / "locustfile.healed.py").write_text(state["source"], encoding="utf-8")
         (heal_dir / "heal.diff").write_text(diff, encoding="utf-8")
     return {"healed": state["passed"], "attempts": state["attempts"], "history": state["history"],
-            "diff": diff, "source": state["source"], "summary": summary}
+            "diff": diff, "source": state["source"], "summary": summary if state["passed"] else ""}   # never repeat an unverified claim

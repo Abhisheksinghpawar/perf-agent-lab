@@ -68,8 +68,8 @@ class LLM:
             return min(max(hinted, 5.0 * (attempt + 1)), 45.0)
         return min(max(hinted, 2.0 ** attempt), 20.0)
 
-    def chat(self, step: str, messages: list[dict], tools: dict[str, Tool] | None = None) -> dict:
-        payload = {"model": self.model, "messages": messages, "temperature": 0.2, "max_tokens": self.max_out}
+    def chat(self, step: str, messages: list[dict], tools: dict[str, Tool] | None = None, max_tokens: int | None = None) -> dict:
+        payload = {"model": self.model, "messages": messages, "temperature": 0.2, "max_tokens": max_tokens or self.max_out}
         if tools:
             payload["tools"] = [{"type": "function", "function": {"name": n, "description": s.get("description", ""),
                                                                     "parameters": {k: v for k, v in s.items() if k != "description"}}}
@@ -82,16 +82,26 @@ class LLM:
 
     # ---- agent loop --------------------------------------------------------------------------
     def run_agent(self, step: str, system: str, user: str, tools: dict[str, Tool],
-                  on_tool: Callable[[str, dict, object], None] | None = None) -> str:
-        """Let the model call `tools` until it answers in plain text (or the turn budget is spent)."""
+                  on_tool: Callable[[str, dict, object], None] | None = None, until: Callable[[], bool] | None = None,
+                  max_turns: int | None = None, max_tokens: int | None = None) -> str:
+        """Let the model call `tools` until it answers in plain text (or the turn budget is spent).
+
+        `until` verifies the work: models sometimes announce a fix without ever calling the tool that applies it. While
+        `until()` is False a plain-text answer is not accepted; the model is told to use the tools (at most twice)."""
         if not self.enabled:
             raise LLMUnavailable("LLM disabled (no API key or --no-llm)")
         messages: list[dict] = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-        for _turn in range(self.max_turns):
-            msg = self.chat(step, messages, tools)
+        nudges = 0
+        for _turn in range(max_turns or self.max_turns):
+            msg = self.chat(step, messages, tools, max_tokens)
             calls = msg.get("tool_calls") or []
             messages.append({"role": "assistant", "content": msg.get("content") or "", **({"tool_calls": calls} if calls else {})})
             if not calls:
+                if until is not None and not until() and nudges < 2:
+                    nudges += 1
+                    messages.append({"role": "user", "content": "The task is not complete: the tools have not accepted a result yet. "
+                                                                "Do not just describe a change - call the tool now."})
+                    continue
                 return (msg.get("content") or "").strip()
             for call in calls:
                 fn = call["function"]
@@ -110,7 +120,7 @@ class LLM:
                 messages.append({"role": "tool", "tool_call_id": call.get("id", name), "content": text[:4000]})          # every turn resends the history: keep tool results small (tokens-per-minute limits)
         # budget exhausted: ask for a final answer without tools
         messages.append({"role": "user", "content": "Tool budget exhausted. Give your final answer now."})
-        return (self.chat(step, messages).get("content") or "").strip()
+        return (self.chat(step, messages, None, max_tokens).get("content") or "").strip()
 
 
 def extract_json(text: str):
