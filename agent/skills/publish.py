@@ -28,7 +28,8 @@ def summary_of(R: dict) -> dict:
     sm, heal = R["smoke"], R.get("heal") or {}
     return {
         "run_id": R["run_id"], "finished_at": R["finished_at"], "verdict": R["verdict"], "duration_s": R["duration_s"],
-        "commit": {k: R["commit"][k] for k in ("sha", "short", "subject", "date", "repo")},
+        "target": R.get("target") or {},
+        "commit": {**{k: R["commit"][k] for k in ("sha", "short", "subject", "date", "repo")}, "subdir": R["commit"].get("subdir", "")},
         "smoke": {"passed": sm["passed"], "requests": sm["requests"], "healed": bool(heal.get("healed")),
                   "heal_attempts": heal.get("attempts", 0)},
         "load": {"users": R["load"]["users"], "duration_s": R["load"]["duration_s"], "requests": o.get("requests", 0),

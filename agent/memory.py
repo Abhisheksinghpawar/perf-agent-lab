@@ -17,8 +17,8 @@ from pathlib import Path
 
 
 class Memory:
-    def __init__(self, root: Path):
-        self.dir = Path(root) / "memory"
+    def __init__(self, root: Path, sub: str = "memory"):
+        self.dir = Path(root) / sub
         self.dir.mkdir(parents=True, exist_ok=True)
 
     # ---- generic json helpers ---------------------------------------------------------------

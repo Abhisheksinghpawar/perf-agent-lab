@@ -7,22 +7,27 @@ Two implementations with the same output schema:
 """
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
 from ..llm import LLM, LLMUnavailable, extract_json
 from . import logs as logs_skill
-from .git_sync import git_log_for
+from .git_sync import EXCLUDE_DIRS, git_log_for
 
-SRC_GLOBS = ("*.java", "*.xml", "*.jsp", "*.properties")
+SRC_GLOBS = ("*.java", "*.xml", "*.jsp", "*.properties")      # defaults; the real values come from [target] source_globs / source_dirs
+HTTP_METHODS = r"(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)"
+ROUTE_HINT = re.compile(r"route|router|app\.|@|path|get\(|post\(|put\(|delete\(|case |handle|mapping|if .*==", re.I)
 SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
 
 
 class Investigator:
     """Read-only access to the code base, logs and metrics of one run. Every method is safe to expose to an agent."""
 
-    def __init__(self, workdir: str, analysis: dict, parsed_logs: dict, metrics: list[dict], t0: float, pkg: str = "org.mybatis.jpetstore"):
+    def __init__(self, workdir: str, analysis: dict, parsed_logs: dict, metrics: list[dict], t0: float, pkg: str = "org.mybatis.jpetstore",
+                 dirs: tuple | list = ("src",), globs: tuple | list = SRC_GLOBS):
         self.pkg = pkg
+        self.dirs, self.globs = tuple(dirs), tuple(globs)
         self.root = Path(workdir).resolve()
         self.analysis = analysis
         self.logs = parsed_logs
@@ -37,9 +42,20 @@ class Investigator:
         return p
 
     def _files(self):
-        src = self.root / "src"
-        for g in SRC_GLOBS:
-            yield from src.rglob(g)
+        """Source files of the app (configured folders and patterns), skipping dependencies and build output."""
+        seen = set()
+        for d in self.dirs:
+            base = (self.root / d).resolve()
+            if self.root not in base.parents and base != self.root:
+                continue
+            for dirpath, dirnames, filenames in os.walk(base):
+                dirnames[:] = sorted(x for x in dirnames if x not in EXCLUDE_DIRS)
+                for name in sorted(filenames):
+                    if any(Path(name).match(g) for g in self.globs):
+                        p = Path(dirpath) / name
+                        if p not in seen:
+                            seen.add(p)
+                            yield p
 
     # -- tools --------------------------------------------------------------------------------------
     def get_spike(self, index: int) -> dict:
@@ -52,7 +68,7 @@ class Investigator:
     def get_exceptions(self, start_rel: float, end_rel: float) -> list[dict]:
         """Exceptions logged in the window, grouped, each with the first application stack frames (file:line) and any SQL/mapper context."""
         win = [x for x in self.logs["exceptions"] if self.t0 + start_rel <= x["ts"] <= self.t0 + end_rel]
-        return [{k: v for k, v in g.items() if k not in ("first_ts", "last_ts")} for g in logs_skill.group_exceptions(win, self.pkg)] or [{"info": "no exceptions in this window"}]
+        return [{k: v for k, v in g.items() if k not in ("first_ts", "last_ts")} for g in logs_skill.group_exceptions(win, self.pkg, root=str(self.root))] or [{"info": "no exceptions in this window"}]
 
     def get_resource_window(self, start_rel: float, end_rel: float) -> dict:
         rows = [m for m in self.metrics if start_rel <= m["ts"] - self.t0 < end_rel]
@@ -93,7 +109,35 @@ class Investigator:
         return git_log_for(str(self.root), path, 5)
 
     def find_handler(self, endpoint: str) -> dict:
-        """Map a Locust endpoint name like 'GET /catalog/viewProduct' to the Spring MVC controller method that serves it."""
+        """Map a Locust endpoint name like 'GET /catalog/viewProduct' to the code that serves it: Spring MVC controllers are
+        resolved precisely; for any other stack the route string is searched in the source."""
+        r = self._find_spring_handler(endpoint)
+        if "file" in r:
+            return r
+        return self._find_route(endpoint) or r
+
+    def _find_route(self, endpoint: str) -> dict | None:
+        """Generic lookup: the first source line that mentions the route as a string literal (best one first)."""
+        m = re.match(rf"^\s*(?:{HTTP_METHODS}\s+)?(/[^\s?(#]*)", endpoint)
+        if not m:
+            return None
+        path = m.group(1).rstrip("/") or "/"
+        rx = re.compile(r"""["'`]""" + re.escape(path) + r"""/?(?:[?#][^"'`]*)?["'`]""")
+        best = None
+        for f in self._files():
+            try:
+                lines = f.read_text(encoding="utf-8", errors="ignore").splitlines()
+            except OSError:
+                continue
+            for n, text in enumerate(lines, 1):
+                if rx.search(text):
+                    hit = (f.relative_to(self.root).as_posix(), n)
+                    if ROUTE_HINT.search(text):
+                        return {"file": hit[0], "line": hit[1], "action": path, "recent_commits": self.git_log(hit[0])}
+                    best = best or hit
+        return {"file": best[0], "line": best[1], "action": path, "recent_commits": self.git_log(best[0])} if best else None
+
+    def _find_spring_handler(self, endpoint: str) -> dict:
         m = re.search(r"/([A-Za-z]+)(?:/([A-Za-z]+))?", endpoint)
         if not m:
             return {"error": "endpoint has no /path part"}
@@ -136,13 +180,13 @@ def _tools(inv: Investigator) -> dict:
         "get_exceptions": (schema("Exceptions in a window with application stack frames (file:line) and SQL/mapper context.", start_rel=num, end_rel=num), inv.get_exceptions),
         "get_resource_window": (schema("CPU/memory/network/GC summary between two run-relative seconds.", start_rel=num, end_rel=num), inv.get_resource_window),
         "find_handler": (schema("Source file+line of the handler for an endpoint name, with recent commits.", endpoint=string), inv.find_handler),
-        "grep_code": (schema("Regex search in src/ (returns file:line: text).", pattern=string), inv.grep_code),
+        "grep_code": (schema("Regex search in the app's source files (returns file:line: text).", pattern=string), inv.grep_code),
         "read_file": (schema("Read lines start..end (max 80) of a repo file.", path=string, start={"type": "integer"}, end={"type": "integer"}), inv.read_file),
         "git_log": (schema("Recent commits for a file path.", path=string), inv.git_log),
     }
 
 
-SYSTEM = """You are a senior performance engineer reviewing one short load test of a Java web app (JPetStore).
+SYSTEM = """You are a senior performance engineer reviewing one short load test of a web app ({app}).
 You get a compact evidence bundle. Investigate only what matters (max 3 issues): use the tools to look at the log
 window and the exceptions (get_exceptions) around each spike/error, the resource window, and the code that handles the slow endpoint (find_handler first,
 then read_file around the returned line). Stay evidence-based: say 'unknown' when the evidence is thin; note that the
@@ -158,10 +202,10 @@ Reply with ONLY one JSON object, no prose:
  "improvements": [{"priority": 1, "action": "...", "expected_impact": "...", "effort": "low|medium|high"}]}"""
 
 
-def correlate_agent(llm: LLM, inv: Investigator, bundle: dict) -> dict | None:
+def correlate_agent(llm: LLM, inv: Investigator, bundle: dict, app_name: str = "the app under test") -> dict | None:
     import json
     try:
-        text = llm.run_agent("correlate", SYSTEM, "Evidence bundle:\n" + json.dumps(bundle, default=str), _tools(inv))
+        text = llm.run_agent("correlate", SYSTEM.replace("{app}", app_name), "Evidence bundle:\n" + json.dumps(bundle, default=str), _tools(inv))
     except LLMUnavailable:
         return None
     data = extract_json(text)
@@ -184,12 +228,24 @@ def _explain_exception(top: dict, inv: Investigator, code_refs: list[dict]) -> t
             except (OSError, ValueError):
                 break
             for ln in src.splitlines():
-                if re.search(r"getNextId|nextId|sequence", ln, re.I):
+                if re.search(r"getNextId|nextId|next_?\w*id|sequence", ln, re.I):
                     num = int(ln.split(":", 1)[0])
                     code_refs.insert(1, {"file": f["file"], "line": num, "note": "primary key is generated here - check that it is atomic"})
                     break
         return ("concurrent requests inserted the same primary key: id generation is probably a non-atomic read-then-increment (race condition)",
                 "Allocate ids atomically (database sequence / identity column, or a single UPDATE ... RETURNING) and retry once on a key collision.")
+    if re.search(r"already exists|duplicate|conflict", text):             # not a database key, but the same kind of race
+        for f in top["app_frames"][:1]:
+            try:
+                src = inv.read_file(f["file"], max(f["line"] - 20, 1), f["line"] + 3)
+            except (OSError, ValueError):
+                break
+            hits = [int(ln.split(":", 1)[0]) for ln in src.splitlines()
+                    if re.search(r"next_?\w*id|nextId|sequence|counter|increment", ln, re.I) and int(ln.split(":", 1)[0]) <= f["line"]]
+            if hits:                                       # the nearest one above the failure is the call that produced the id
+                code_refs.insert(1, {"file": f["file"], "line": hits[-1], "note": "id/counter is generated here - check that it is atomic"})
+        return ("a uniqueness check failed under concurrent load: ids are probably allocated with a non-atomic read-then-increment (race condition)",
+                "Allocate ids atomically (a database sequence or identity column, an atomic counter, or a lock) and retry once on a collision.")
     if re.search(r"timeout|timed out|lock wait", text):
         return "a database or downstream call timed out under load", "Add timeouts and indexes for the slow call, then size the connection pool for the target concurrency."
     if "nullpointer" in text:

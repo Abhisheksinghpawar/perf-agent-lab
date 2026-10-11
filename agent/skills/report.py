@@ -59,7 +59,12 @@ def build_html(R: dict) -> str:
     commit, an = R["commit"], R.get("analysis") or {}
     o = an.get("overall", {})
     res = an.get("resources") or {}
-    repo_blob = f"{commit['repo']}/blob/{commit['sha']}/"
+    tgt = R.get("target") or {}
+    plabel = tgt.get("process_label") or "Tomcat JVM"
+    has_repo = bool(commit.get("repo"))                      # a local folder without a git remote has nothing to link to
+    repo_blob = f"{commit['repo']}/blob/{commit['sha']}/" + (commit["subdir"].strip("/") + "/" if commit.get("subdir") else "")
+    commit_html = (f'<a href="{e(commit["repo"])}/commit/{e(commit["sha"])}" target="_blank" rel="noopener">{e(commit["short"])}</a>'
+                   if has_repo else e(commit["short"]))
 
     # ---- pipeline trace ---------------------------------------------------------------------------
     steps = []
@@ -78,8 +83,8 @@ def build_html(R: dict) -> str:
             '<div class="grid2">'
             f'<div class="card"><h4>Response time (ms)</h4>{svg_chart([("p50", COLORS["p50"], [(b["t"], b["p50"]) for b in tl if b["n"]]), ("p95", COLORS["p95"], [(b["t"], b["p95"]) for b in tl if b["n"]])], bands, "ms")}</div>'
             f'<div class="card"><h4>Throughput &amp; errors</h4>{svg_chart([("req/s", COLORS["rps"], [(b["t"], b["rps"]) for b in tl]), ("errors/bucket", COLORS["err"], [(b["t"], b["errors"]) for b in tl])], bands)}</div>'
-            f'<div class="card"><h4>CPU (%)</h4>{svg_chart([("host", COLORS["cpu"], [(b["t"], b["cpu"]) for b in rt]), ("tomcat jvm", COLORS["java"], [(b["t"], b["java_cpu"]) for b in rt]), ("locust", COLORS["locust"], [(b["t"], b["locust_cpu"]) for b in rt])], bands, "%", y_max=100)}</div>'
-            f'<div class="card"><h4>Network (KB/s) &amp; JVM memory (MB RSS)</h4>{svg_chart([("net KB/s", COLORS["net"], [(b["t"], b["net_kbs"]) for b in rt]), ("jvm RSS MB", COLORS["rss"], [(b["t"], b["rss_mb"]) for b in rt])], bands)}</div>'
+            f'<div class="card"><h4>CPU (%)</h4>{svg_chart([("host", COLORS["cpu"], [(b["t"], b["cpu"]) for b in rt]), (plabel.lower(), COLORS["java"], [(b["t"], b["java_cpu"]) for b in rt]), ("locust", COLORS["locust"], [(b["t"], b["locust_cpu"]) for b in rt])], bands, "%", y_max=100)}</div>'
+            f'<div class="card"><h4>Network (KB/s) &amp; {e(plabel)} memory (MB RSS)</h4>{svg_chart([("net KB/s", COLORS["net"], [(b["t"], b["net_kbs"]) for b in rt]), (f"{plabel.lower()} RSS MB", COLORS["rss"], [(b["t"], b["rss_mb"]) for b in rt])], bands)}</div>'
             "</div>")
 
     # ---- tables ---------------------------------------------------------------------------------------
@@ -112,17 +117,22 @@ def build_html(R: dict) -> str:
     if lg:
         ex = "".join(f'<li><code>{e(x["type"])}</code> {e(x["message"])} <small>x{x["count"]} {e(x["where"])}</small></li>' for x in lg.get("exceptions", []))
         warn = "".join(f"<li>{e(w)}</li>" for w in lg.get("warnings", []))
-        log_html = (f'<div class="grid2"><div class="card"><h4>Application log</h4><p class="m">{lg.get("log_lines", 0)} lines scanned - levels: '
+        gc_card = ""                                       # only JVM apps log GC events
+        if gc.get("count"):
+            gc_card = (f'<div class="card"><h4>JVM garbage collection</h4><p class="m">{gc.get("count", 0)} events - total pause {gc.get("total_pause_ms", 0)} ms - '
+                       f'max {gc.get("max_pause_ms", 0)} ms - full GCs {gc.get("full_gc", 0)} - heap after GC (max) {gc.get("heap_after_max_mb", 0)} MB</p></div>')
+        log_html =(f'<div class="grid2"><div class="card"><h4>Application log</h4><p class="m">{lg.get("log_lines", 0)} lines scanned - levels: '
                     f'{e(", ".join(f"{k} {v}" for k, v in lg.get("levels", {}).items()) or "nothing logged during the test window (startup lines excluded)")}</p>'
                     f'{"<ul>" + ex + "</ul>" if ex else "<p class=m>No exceptions logged during the test.</p>"}'
                     f'{"<ul>" + warn + "</ul>" if warn else ""}</div>'
-                    f'<div class="card"><h4>JVM garbage collection</h4><p class="m">{gc.get("count", 0)} events - total pause {gc.get("total_pause_ms", 0)} ms - '
-                    f'max {gc.get("max_pause_ms", 0)} ms - full GCs {gc.get("full_gc", 0)} - heap after GC (max) {gc.get("heap_after_max_mb", 0)} MB</p></div></div>')
+                    f'{gc_card}</div>')
 
     # ---- findings ------------------------------------------------------------------------------------------
     cards = []
     for f in R["findings"]:
-        refs = "".join(f'<a href="{e(repo_blob + r["file"])}#L{int(r.get("line", 1))}" target="_blank" rel="noopener">{e(r["file"].split("/")[-1])}:{int(r.get("line", 1))}</a> {e(r.get("note", ""))}<br>'
+        refs = "".join((f'<a href="{e(repo_blob + r["file"])}#L{int(r.get("line", 1))}" target="_blank" rel="noopener">' if has_repo else "<code>")
+                       + f'{e(r["file"].split("/")[-1])}:{int(r.get("line", 1))}' + ("</a>" if has_repo else "</code>")
+                       + f' {e(r.get("note", ""))}<br>'
                        for r in f.get("code_refs", []) if r.get("file"))
         ev = "".join(f"<li>{e(str(x))}</li>" for x in f.get("evidence", []))
         rec = " <span class='rec'>recurring</span>" if f.get("recurring") else ""
@@ -164,8 +174,8 @@ def build_html(R: dict) -> str:
         _kpi("Throughput", f'{o.get("rps", 0)} req/s'),
         _kpi("p95 latency", f'{o.get("p95", 0):.0f} ms', f'p50 {o.get("p50", 0):.0f} / p99 {o.get("p99", 0):.0f}'),
         _kpi("Error rate", f'{o.get("error_rate", 0):.2%}', f'{o.get("failures", 0)} failed'),
-        _kpi("CPU (host)", f'{res.get("cpu_avg", 0)}%', f'max {res.get("cpu_max", 0)}%, JVM avg {res.get("java_cpu_avg", 0)}%'),
-        _kpi("JVM memory", f'{res.get("java_rss_max_mb", 0):.0f} MB', "peak RSS"),
+        _kpi("CPU (host)", f'{res.get("cpu_avg", 0)}%', f'max {res.get("cpu_max", 0)}%, {plabel} avg {res.get("java_cpu_avg", 0)}%'),
+        _kpi(f"{plabel} memory", f'{res.get("java_rss_max_mb", 0):.0f} MB', "peak RSS"),
         _kpi("Smoke test", "passed" if sm["passed"] else "failed", f'{sm["requests"]} req' + (" - script self-healed" if (R.get("heal") or {}).get("healed") else "")),
         _kpi("LLM tokens", f'{tok["total"]}'),
     ])
@@ -189,8 +199,8 @@ ul.ev{{margin:6px 0 8px 18px;padding:0}}a{{color:#22d3ee}}pre{{background:#00000
 svg{{width:100%;height:auto}}.foot{{margin-top:40px;color:var(--m);font-size:12px}}@media(max-width:760px){{.grid2{{grid-template-columns:1fr}}.kpis{{grid-template-columns:repeat(2,1fr)}}}}
 </style></head><body><div class="wrap">
 <div class="m">perf-agent-lab - automated performance run</div>
-<h1>{e(commit["repo"].split("github.com/")[-1])} <span class="badge" style="background:{vcolor}">{e(verdict_label)}</span></h1>
-<div class="m">commit <a href="{e(commit["repo"])}/commit/{e(commit["sha"])}" target="_blank" rel="noopener">{e(commit["short"])}</a> - {e(commit["subject"])} - run {e(R["run_id"])} (UTC) - total {R["duration_s"]} s - LLM: {e(R.get("llm_mode", "off"))}</div>
+<h1>{e(tgt.get("name") or commit["repo"].split("github.com/")[-1] or "Performance run")} <span class="badge" style="background:{vcolor}">{e(verdict_label)}</span></h1>
+<div class="m">commit {commit_html} - {e(commit["subject"])} - run {e(R["run_id"])} (UTC) - total {R["duration_s"]} s - LLM: {e(R.get("llm_mode", "off"))}</div>
 <div class="card" style="margin-top:16px"><b>Summary.</b> {e(R["summary"])}</div>
 <div class="kpis">{kpis}</div>
 <h2>Pipeline</h2><ol class="trace">{"".join(steps)}</ol>

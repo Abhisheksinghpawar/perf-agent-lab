@@ -13,7 +13,7 @@ import time
 import traceback
 from pathlib import Path
 
-from .config import ROOT, load_config
+from .config import ROOT, load_config, resolve
 from .context import RunContext
 from .llm import LLM
 from .memory import Memory
@@ -52,7 +52,7 @@ def main(argv: list[str] | None = None) -> int:
     HOME = Path(os.environ.get("PERF_HOME") or ROOT)
     HOME.mkdir(parents=True, exist_ok=True)
     ctx = RunContext(cfg, HOME)
-    mem = Memory(HOME)
+    mem = Memory(HOME, cfg["publish"]["memory_dir"])
     llm = LLM(cfg, ctx, enabled=not args.no_llm)
     maven_repo = Path(os.environ["PERF_MAVEN_REPO"]) if os.environ.get("PERF_MAVEN_REPO") else None
     t_run = time.time()
@@ -83,13 +83,19 @@ def main(argv: list[str] | None = None) -> int:
             ev["detail"] = f"build {b}s, ready after {s}s"
 
         # which Locust script do we start from?
+        tcfg = cfg["target"]
+        default_script = resolve(tcfg["locustfile"])
         if args.demo_heal:
-            source, origin = ROOT / "locust" / "broken" / "locustfile.py", "stale demo script"
+            if not tcfg.get("broken_locustfile"):
+                raise RuntimeError("--demo-heal needs [target].broken_locustfile (a stale script to repair); the JPetStore preset has one")
+            source, origin = resolve(tcfg["broken_locustfile"]), "stale demo script"
         elif mem.good_locustfile():
             (ctx.out / "good.py").write_text(mem.good_locustfile(), encoding="utf-8")
             source, origin = ctx.out / "good.py", "last known-good script"
         else:
-            source, origin = ROOT / "locust" / "locustfile.py", "default script"
+            source, origin = default_script, "default script"
+        if not source.exists():
+            raise RuntimeError(f"Locust script not found: {source} (set [target].locustfile in your config)")
         locustfile = _prepare_locust_dir(ctx, source)
 
         # 3 ---- sanity -------------------------------------------------------------------------------------
@@ -128,7 +134,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             # 5 ---- load test --------------------------------------------------------------------------------
             with ctx.step("load", f"Run the load test ({cfg['load']['users']} users, {cfg['load']['duration_s']} s)") as ev:
-                load = run_load(cfg, locustfile, ctx.out, app.java_process)
+                load = run_load(cfg, locustfile, ctx.out, app.app_process)
                 ev["detail"] = f"{len(load['records'])} requests, {len(load['metrics'])} resource samples"
             state["load"] = load
     except Exception as exc:  # noqa: BLE001 - the report must still be produced
@@ -158,16 +164,17 @@ def main(argv: list[str] | None = None) -> int:
             with ctx.step("logs", "Inspect application and GC logs") as ev:
                 parsed_logs = logs_skill.parse(ctx.out / "app.log")
                 t_start, t_end = state["analysis"]["overall"]["t_start"], state["analysis"]["overall"]["t_end"]
-                state["logs"] = logs_skill.summarize(parsed_logs, t_start, t_end, pkg=cfg["target"]["app_package"])
+                state["logs"] = logs_skill.summarize(parsed_logs, t_start, t_end, pkg=cfg["target"]["app_package"], root=git["workdir"])
                 ev["detail"] = f"{state['logs']['log_lines']} lines, {len(state['logs']['exceptions'])} exception type(s), {state['logs']['gc']['count']} GC events"
             # 8 ---- correlate with code ------------------------------------------------------------------------------
-            inv = correlate.Investigator(git["workdir"], state["analysis"], parsed_logs, load["metrics"], state["analysis"]["overall"]["t_start"], cfg["target"]["app_package"])
+            inv = correlate.Investigator(git["workdir"], state["analysis"], parsed_logs, load["metrics"], state["analysis"]["overall"]["t_start"],
+                                 cfg["target"]["app_package"], cfg["target"]["source_dirs"], cfg["target"]["source_globs"])
             bundle = analyze_skill.evidence_bundle(state["analysis"], git, state["logs"], mem.known_issues())
             result = None
             if analyze_skill.needs_investigation(state["analysis"]):
                 if llm.enabled:
                     with ctx.step("correlate", "Correlate with logs, code and recent commits", "agent") as ev:
-                        result = correlate.correlate_agent(llm, inv, bundle)
+                        result = correlate.correlate_agent(llm, inv, bundle, cfg["target"]["name"])
                         ev["detail"] = "LLM agent with code/log tools" if result else "agent gave no usable answer - using rule-based analysis"
                 if result is None:
                     with ctx.step("correlate_rules", "Correlate with logs and code (rule-based)") as ev:
@@ -194,7 +201,8 @@ def main(argv: list[str] | None = None) -> int:
             R = {
                 "run_id": ctx.run_id, "finished_at": publish.now_iso(), "duration_s": round(time.time() - t_run, 1), "verdict": ctx.verdict,
                 "commit": {k: git.get(k, d) for k, d in (("sha", "unknown"), ("short", "unknown"), ("subject", "(run aborted before pulling code)"),
-                                                          ("date", ""), ("repo", cfg["target"]["repo_url"].removesuffix(".git")), ("changed_files", []))},
+                                                          ("date", ""), ("repo", cfg["target"]["repo_url"].removesuffix(".git")), ("changed_files", []), ("subdir", ""), ("branch", ""))},
+                "target": {"name": cfg["target"]["name"], "process_label": cfg["target"]["process_label"], "runner": cfg["target"]["runner"]},
                 "smoke": state["smoke"], "heal": state["heal"], "analysis": state["analysis"], "logs": state["logs"],
                 "findings": state["findings"], "improvements": state["improvements"], "summary": state["summary"],
                 "load": {"users": int(cfg["load"]["users"]), "duration_s": int(cfg["load"]["duration_s"])},

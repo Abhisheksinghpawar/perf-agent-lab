@@ -1,0 +1,61 @@
+# Built-in defaults. Your config (config.toml, or any file passed with --config) is merged on top of this,
+# so an app config only needs the keys that differ. See README, "Use it on your own app".
+
+[target]
+name              = "my-app"             # shown in the report and on the portfolio card
+repo_url          = ""                   # git URL to clone ... or use local_path instead
+branch            = "main"
+ref               = ""                   # pin a commit SHA / tag for fully reproducible runs
+local_path        = ""                   # test a folder you already have (a monorepo subfolder, a sibling checkout); no clone
+workdir           = "work/target"        # where repo_url is cloned (git-ignored)
+runner            = "command"            # "command" = your build_cmd/start_cmd; "maven-cargo" = built-in Maven + Tomcat (JPetStore)
+build_cmd         = ""                   # optional, runs in the app folder. Placeholders: {python} {port}
+start_cmd         = ""                   # must keep running; the pipeline stops it when done. Placeholders: {python} {port}
+base_url          = "http://localhost:8080"
+health_path       = "/"                  # must answer HTTP 200 when the app is ready
+locustfile        = "locust/locustfile.py"   # your user journeys (relative to this repo, or absolute)
+broken_locustfile = ""                   # optional stale script for `--demo-heal`
+log_file          = ""                   # only if the app logs to a file instead of stdout/stderr (relative to the app folder)
+process_match     = ""                   # substring of the app's command line, to pick the process to sample (default: biggest child)
+process_label     = "App process"        # name used for CPU/memory in the report
+app_package       = ""                   # Java: stack frames from this package are "your" code
+source_dirs       = ["src"]              # where your source lives, for code lookup (use ["."] for the whole app folder)
+source_globs      = ["*.java", "*.xml", "*.jsp", "*.properties"]
+build_timeout_s   = 900
+startup_timeout_s = 300
+
+[smoke]                       # sanity test: runs BEFORE the real load test; a failure triggers self-healing
+users             = 1
+duration_s        = 20
+min_requests      = 12
+max_error_rate    = 0.0
+p95_ms_limit      = 2000
+max_heal_attempts = 3
+
+[load]                        # the real test: short on purpose (1 minute)
+users      = 100
+spawn_rate = 20
+duration_s = 60
+
+[analysis]
+window_s           = 5        # time-bucket size for spike detection
+spike_factor       = 2.5      # a bucket is a spike when p95 > factor * median(p95) ...
+spike_min_ms       = 250      # ... and above this absolute floor
+cpu_saturation_pct = 85
+regression_pct     = 25       # endpoint p95 vs baseline
+regression_min_ms  = 50
+error_rate_alert   = 0.01
+
+[llm]                         # any OpenAI-compatible API; defaults to Groq (free tier works)
+base_url          = "https://api.groq.com/openai/v1"
+model             = "openai/gpt-oss-20b"
+api_key_env       = "GROQ_API_KEY"
+max_tool_turns    = 8
+max_output_tokens = 1500
+timeout_s         = 90
+
+[publish]
+reports_dir = "reports"
+memory_dir  = "memory"        # per-app state; give each app its own dir (and reports_dir) when one repo tests several apps
+site_dir    = "site"
+keep_runs   = 30

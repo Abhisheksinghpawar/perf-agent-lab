@@ -4,7 +4,9 @@
 [![latest report](https://img.shields.io/badge/latest%20report-GitHub%20Pages-7c5cff)](https://abhisheksinghpawar.github.io/perf-agent-lab/)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**An agentic performance-testing pipeline.** Every night it pulls the latest code of a real web app ([JPetStore](https://github.com/mybatis/jpetstore-6)), proves the load-test script still works, **repairs the script with an LLM agent if it doesn't**, runs a 1-minute load test, and turns the numbers into a report that traces latency spikes and errors to **logs, source code and recent commits**. Everything runs on GitHub Actions and the report is published to GitHub Pages: there is nothing to host.
+**An agentic performance-testing pipeline.** Every night it pulls the latest code of a web app, proves the load-test script still works, **repairs the script with an LLM agent if it doesn't**, runs a 1-minute load test, and turns the numbers into a report that traces latency spikes and errors to **logs, source code and recent commits**. Everything runs on GitHub Actions and the report is published to GitHub Pages: there is nothing to host.
+
+**It is a plug-in pipeline, not a JPetStore demo.** The bundled preset tests [JPetStore](https://github.com/mybatis/jpetstore-6) (Java), and a few lines of config point it at **your** app, **your** Locust journeys and **your** LLM: [see how](#use-it-on-your-own-app). CI proves it on every push by running the whole pipeline against a second, Python app.
 
 <p align="center"><a href="https://abhisheksinghpawar.github.io/perf-agent-lab/"><img src="docs/sample-report.png" alt="Sample report" width="760"></a></p>
 
@@ -39,6 +41,63 @@ python -m agent run --force
 ```
 
 `python -m agent` lists all commands (`doctor`, `demo`, `run`, `test`). Useful flags for `run`: `--no-llm` (rule-based only), `--demo-heal`, `--set load.users=250`, `--force`.
+
+## Use it on your own app
+
+Nothing in the pipeline is tied to JPetStore except the preset in `config.toml`. Your config is merged on top of
+[`agent/defaults.toml`](agent/defaults.toml), so it only needs the keys that differ.
+
+**1. Describe your app** in `my-app.toml` (copy [`examples/python-shop/config.toml`](examples/python-shop/config.toml)):
+
+```toml
+[target]
+name         = "orders-service"
+repo_url     = "https://github.com/your-org/orders-service.git"   # or: local_path = "../orders-service" (no clone)
+build_cmd    = "npm ci && npm run build"                         # optional
+start_cmd    = "npm start"                                       # must keep running; {port} and {python} are filled in
+base_url     = "http://127.0.0.1:3000"
+health_path  = "/healthz"                                        # must answer HTTP 200 when ready
+locustfile   = "load/journeys.py"                                # your user journeys
+source_dirs  = ["src"]                                           # where the code lives (for error -> code-line lookup)
+source_globs = ["*.js", "*.ts"]
+```
+
+**2. Write the journeys** as a plain Locust file. Start from [`examples/python-shop/locustfile.py`](examples/python-shop/locustfile.py) and keep `import recorder`.
+Validate responses, not just status codes. The repair agent can fix this file when it breaks, but never your app.
+
+**3. Check, then run:**
+
+```bash
+python -m agent doctor --config my-app.toml
+python -m agent run    --config my-app.toml --force --no-llm      # drop --no-llm once an LLM key is set
+```
+
+**4. Put it in CI:** commit `my-app.toml`, then **Actions → perf-agent → Run workflow → config: `my-app.toml`**
+(or change the workflow's default). One repo, one Pages site: to test several apps, fork per app, or give each its own
+`[publish] reports_dir` / `memory_dir` so their history stays separate.
+
+**What is generic, and what depends on the stack**
+
+| Part | Any stack | Notes |
+|---|---|---|
+| Sanity test, self-heal, load test, spike/error/regression analysis, baselines, report, Pages, memory, token saving | yes | all driven by HTTP + Locust |
+| CPU / memory / network of your app | yes | samples the process you start (`process_match` picks it; `process_label` names it) |
+| Log timeline | yes | needs timestamps and levels, e.g. `2026-10-11 03:12:44,123 ERROR ...`; set `log_file` if the app writes a file instead of stdout |
+| Error -> **code line** | Java and Python | Java stack traces and Python tracebacks give `file:line`; other stacks still get log evidence |
+| Endpoint -> handler | Spring MVC precisely; everything else by route string | looks for `"/checkout"` in `source_dirs` |
+| GC analysis | JVM only | hidden for other apps |
+
+Verified with JPetStore (Java, Maven + Tomcat) and the sample Python app (CI). Other stacks are expected to work for everything
+in the first rows but are not yet tested here: if yours misbehaves, `python -m agent doctor` and the report's pipeline trace show where.
+
+**Your own LLM.** Any OpenAI-compatible endpoint works; no code changes:
+
+| Provider | Set |
+|---|---|
+| Groq (default) | `GROQ_API_KEY` |
+| OpenAI, Azure OpenAI, Together, OpenRouter, Ollama, vLLM, ... | `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` (or edit `[llm]`) |
+
+Without a key everything still runs; the analysis is then rule-based and the report says so.
 
 ## How it works
 
@@ -106,12 +165,18 @@ flowchart LR
 | `No new commits ... nothing to test` locally | Same reason; add `--force`. |
 | Self-heal never runs | It needs an LLM key (or `demo`). Without one a failing sanity test ends the run with a clear message. |
 | Windows | Works with Git Bash or PowerShell; the Maven wrapper is `mvnw.cmd` and is picked automatically. |
+| Sanity test is slow / only a few requests on your own app | Use `http://127.0.0.1:PORT` in `base_url` instead of `localhost`: some machines try IPv6 first and wait for it to time out. |
+| `[target].start_cmd is empty` / `local_path is not a folder` / `Locust script not found` | The config is incomplete: `python -m agent doctor --config your.toml` names the key to set. |
+| Report shows no code lines for your app | Set `source_dirs` / `source_globs` to where your code lives, and make sure the app logs timestamped errors with stack traces. |
 
-## Configuration (`config.toml`)
+## Configuration (`config.toml`, merged over `agent/defaults.toml`)
 
 | Section | Key | Default | Meaning |
 |---|---|---|---|
-| `target` | `repo_url`, `branch`, `ref`, `app_package` | JPetStore, `master`, `""` | system under test; pin a commit; which stack frames count as "our" code |
+| `target` | `name`, `repo_url` or `local_path`, `branch`, `ref` | JPetStore preset | the app: clone a repo or use a folder; pin a commit |
+| `target` | `runner`, `build_cmd`, `start_cmd`, `base_url`, `health_path` | `command` | how to build/start it and when it is ready (`maven-cargo` = built-in Maven + Tomcat) |
+| `target` | `locustfile`, `broken_locustfile` | `locust/locustfile.py` | your user journeys; a stale script for `--demo-heal` |
+| `target` | `source_dirs`, `source_globs`, `app_package`, `log_file`, `process_match`, `process_label` | `src`, java globs | code lookup, which stack frames are "yours", log source, which process to sample |
 | `smoke` | `users`, `duration_s`, `min_requests`, `max_error_rate`, `p95_ms_limit`, `max_heal_attempts` | 1, 20, 12, 0.0, 2000, 3 | sanity-test pass criteria |
 | `load` | `users`, `spawn_rate`, `duration_s` | 250, 50, 60 | the real test |
 | `analysis` | `window_s`, `spike_factor`, `spike_min_ms`, `regression_pct`, ... | 5, 2.5, 250, 25 | detection thresholds |
@@ -120,11 +185,12 @@ flowchart LR
 ## Repository layout
 
 ```
-agent/            run.py (orchestrator), llm.py (client + tool loop), memory.py, doctor.py, demo.py, demo_llm.py
+agent/            run.py (orchestrator), llm.py (client + tool loop), memory.py, config.py + defaults.toml, doctor.py, demo.py, demo_llm.py
 agent/skills/    git_sync, app_env, smoke, heal, load_test, metrics, analyze, logs, correlate, report, publish
 locust/           locustfile.py (JPetStore journeys), recorder.py (per-request log), broken/ (stale script for the demo)
 memory/           state, baselines, known issues, last good script, token stats   (committed back by the workflow)
 reports/          history.json + the last 30 runs                                  (committed back by the workflow)
+examples/         python-shop: a second, Python app with its own config + Locust file (run by CI)
 docs/             sample report (HTML + screenshot)
 tests/            unit + regression tests, incl. a real captured stack trace
 .github/workflows perf-agent.yml (nightly/manual, publishes Pages), ci.yml (tests)
@@ -147,6 +213,7 @@ At 100-250 concurrent users, JPetStore's `POST /order/new (confirm)` returns HTT
 * Locust and the app share one machine (a CI runner), so absolute numbers are indicative; use the report for **trends and regressions**, not capacity planning.
 * A 1-minute test is a regression check, not an endurance or stress test.
 * LLM output is advisory. Findings carry evidence and `file:line` links so they can be verified quickly, and the rule-based path never claims more than simple, stated heuristics.
+* Code-line mapping covers Java and Python today; other stacks fall back to log evidence and route search.
 * The demo mode proves the agent *plumbing* with a scripted model; it says nothing about how well a real model performs.
 
 ## License

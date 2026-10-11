@@ -21,6 +21,9 @@ on:
       users:
         description: "Concurrent users for the 1-minute load test (empty = config.toml)"
         default: "250"
+      config:
+        description: "Config file to run (your own app: see README, 'Use it on your own app')"
+        default: "config.toml"
 
 concurrency:
   group: perf-agent
@@ -65,8 +68,9 @@ jobs:
           DEMO_HEAL: ${{ github.event.inputs.demo_heal }}
           USE_LLM: ${{ github.event.inputs.use_llm }}
           USERS: ${{ github.event.inputs.users }}
+          CONFIG: ${{ github.event.inputs.config }}
         run: |
-          args=()
+          args=(--config "${CONFIG:-config.toml}" --set publish.site_dir=site)     # Pages always publishes ./site
           [ -n "$USERS" ] && args+=(--set "load.users=$USERS")     # nightly runs use config.toml
           [ "$FORCE" = "true" ] && args+=(--force)
           [ "$DEMO_HEAL" = "true" ] && args+=(--demo-heal)

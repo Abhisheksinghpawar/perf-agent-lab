@@ -15,3 +15,24 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Unit tests (analysis, logs, validator, memory, report, agent loop)
         run: python -m unittest discover -s tests -v
+  sample-app:
+    # Proves the pipeline is not tied to JPetStore: the whole run (start app, sanity, load, logs, code lookup, report)
+    # on a second app written in Python. No Java, no LLM, no secrets.
+    runs-on: ubuntu-latest
+    env:
+      PERF_HOME: ${{ runner.temp }}/perf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run the pipeline on examples/python-shop
+        run: python -m agent run --config examples/python-shop/config.toml --force --no-llm --set load.users=60 --set load.duration_s=20
+      - name: The report must trace the planted race condition to a source line
+        run: |
+          report=$(ls "$PERF_HOME"/reports/python-shop/runs/*/report.html | tail -1)
+          grep -q "DuplicateOrderError" "$report"
+          grep -q "app.py:" "$report"
+          grep -q "Python process" "$report"

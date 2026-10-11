@@ -1,12 +1,20 @@
 # perf-agent-lab configuration. Every value can be overridden with --set section.key=value on the CLI.
 
+# This file is the JPetStore preset. Everything not listed here comes from agent/defaults.toml.
+# To test your own app: copy it (or examples/python-shop/config.toml) and see README "Use it on your own app".
+
 [target]
+name            = "JPetStore"
 repo_url        = "https://github.com/mybatis/jpetstore-6.git"
 branch          = "master"
 ref             = ""                          # pin a commit SHA or tag for fully reproducible runs ("" = latest of branch)
 workdir         = "work/jpetstore-6"          # where the target repo is cloned (git-ignored)
+runner          = "maven-cargo"               # built-in: ./mvnw package, then Tomcat via the Cargo plugin
 base_url        = "http://localhost:8080/jpetstore"
 health_path     = "/catalog"
+locustfile     = "locust/locustfile.py"
+broken_locustfile = "locust/broken/locustfile.py"   # used by `--demo-heal`
+process_label   = "Tomcat JVM"
 app_package     = "org.mybatis.jpetstore"      # stack frames from this package are "our" code
 build_timeout_s = 900
 startup_timeout_s = 300

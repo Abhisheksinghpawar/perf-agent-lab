@@ -1,0 +1,30 @@
+# perf-agent-lab config for the sample Python shop. This is ALL it takes to point the pipeline at another app:
+# everything not listed comes from agent/defaults.toml.
+#
+#   python -m agent run --config examples/python-shop/config.toml --force --no-llm
+
+[target]
+name          = "python-shop (sample)"
+local_path    = "examples/python-shop"                 # use a folder that already exists (or: repo_url = "https://github.com/you/app.git")
+runner        = "command"
+start_cmd     = "{python} -u app.py --port {port}"     # runs inside local_path; {python} and {port} are filled in for you
+base_url      = "http://127.0.0.1:8081"                # 127.0.0.1, not localhost: avoids a slow IPv6 attempt on some machines
+health_path   = "/health"                              # must answer 200 when the app is ready
+locustfile    = "examples/python-shop/locustfile.py"   # your user journeys
+process_label = "Python process"
+source_dirs   = ["."]                                  # where the code lives (for error -> code-line lookup)
+source_globs  = ["*.py"]
+startup_timeout_s = 30
+
+[smoke]
+duration_s   = 10
+min_requests = 8
+
+[load]
+users      = 100
+spawn_rate = 50
+duration_s = 60
+
+[publish]                                              # keep this app's state apart from other apps in the same repo
+reports_dir = "reports/python-shop"
+memory_dir  = "memory/python-shop"

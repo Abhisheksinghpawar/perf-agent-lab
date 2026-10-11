@@ -20,7 +20,7 @@ class BuildHintTests(unittest.TestCase):
         self.assertIn("PERF_MAVEN_REPO", build_hint("java.nio.file.AccessDeniedException: C:\\\\Users\\\\x\\\\.m2\\\\repository\\\\a.pom.lastUpdated"))
 
     def test_unknown_failure_has_a_generic_pointer(self):
-        self.assertIn("Maven output", build_hint("something else entirely"))
+        self.assertIn("build output", build_hint("something else entirely"))
 
 
 if __name__ == "__main__":
