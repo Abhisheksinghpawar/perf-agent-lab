@@ -1062,5 +1062,101 @@
     },
     "llm": "openai/gpt-oss-20b",
     "analysis_by": "llm"
+  },
+  {
+    "run_id": "20261012-105124",
+    "finished_at": "2026-10-12T10:53:46+00:00",
+    "verdict": "attention",
+    "duration_s": 142.1,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "344ef63ddf05dd83cd5bfc325a9e8ef7b143f860",
+      "short": "344ef63d",
+      "subject": "Merge pull request #1190 from mybatis/renovate/org.seleniumhq.selenium-selenium-bom-4.x",
+      "date": "2026-10-11T12:25:14-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 62,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 52108,
+      "rps": 870.32,
+      "error_rate": 0.0002,
+      "p50": 1.9,
+      "p95": 8.9,
+      "p99": 48.0,
+      "failures": 11
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 0
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 134,
+      "gc_max_pause_ms": 12.2
+    },
+    "resources": {
+      "cpu_avg": 35.8,
+      "cpu_max": 75.3,
+      "java_cpu_avg": 19.4,
+      "java_rss_max_mb": 408.9,
+      "net_sent_mb": 246.53,
+      "net_recv_mb": 246.5
+    },
+    "findings": [
+      {
+        "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+        "severity": "high"
+      }
+    ],
+    "top_finding": {
+      "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+      "severity": "high",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "11 500 errors",
+        "HsqlException: unique constraint violation on PK_ORDERS"
+      ],
+      "suspected_cause": "getNextId(\"ordernum\") generates non\u2011unique IDs under concurrent load",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "orderMapper.insertOrder(order)"
+        }
+      ],
+      "recommendation": "Replace getNextId with database auto\u2011increment or UUID generation and add transaction isolation to prevent duplicate inserts"
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Implement database\u2011generated unique order IDs and enforce transaction isolation in OrderService",
+        "effort": "medium"
+      }
+    ],
+    "top_improvement": "Implement database\u2011generated unique order IDs and enforce transaction isolation in OrderService",
+    "summary": "1 item(s) need attention; the most important is: Duplicate Order ID causing 500 errors on POST /order/new (confirm). 1 small latency difference(s) were within run-to-run noise and are not treated as findings.",
+    "tokens": {
+      "total": 12761,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "openai/gpt-oss-20b",
+    "analysis_by": "llm"
   }
 ]

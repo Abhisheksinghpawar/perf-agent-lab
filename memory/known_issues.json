@@ -3,8 +3,8 @@
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
     "first_seen": "20261011-045856",
-    "last_seen": "20261011-045856",
-    "seen_count": 1,
+    "last_seen": "20261012-105124",
+    "seen_count": 2,
     "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)"
   },
   "3e061b7399": {
