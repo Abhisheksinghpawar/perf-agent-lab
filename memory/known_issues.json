@@ -1,4 +1,12 @@
 {
+  "0a86d6ff2c": {
+    "category": "errors",
+    "endpoint": "POST /order/new (confirm)",
+    "first_seen": "20261018-080254",
+    "last_seen": "20261018-080254",
+    "seen_count": 1,
+    "title": "Duplicate Order ID causing 500 errors on POST /order/new"
+  },
   "24b5c87700": {
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
