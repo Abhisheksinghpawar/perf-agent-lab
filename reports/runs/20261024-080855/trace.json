@@ -1,0 +1,73 @@
+[
+  {
+    "key": "pull",
+    "title": "Pull latest code",
+    "kind": "code",
+    "status": "ok",
+    "detail": "400f2316 Merge pull request #1202 from mybatis/renovate/byte-buddy.ve",
+    "duration_s": 0.81
+  },
+  {
+    "key": "env",
+    "title": "Build and start the application",
+    "kind": "code",
+    "status": "ok",
+    "detail": "build 17.0s, ready after 7.6s",
+    "duration_s": 24.63
+  },
+  {
+    "key": "sanity",
+    "title": "Sanity (smoke) test",
+    "kind": "code",
+    "status": "ok",
+    "detail": "last known-good script: 91 req, 0 failed, p95 69.6 ms",
+    "duration_s": 20.21
+  },
+  {
+    "key": "heal",
+    "title": "Self-heal the Locust script",
+    "kind": "agent",
+    "status": "skipped",
+    "detail": "smoke test passed - no repair needed",
+    "duration_s": 0
+  },
+  {
+    "key": "load",
+    "title": "Run the load test (250 users, 60 s)",
+    "kind": "code",
+    "status": "ok",
+    "detail": "52734 requests, 60 resource samples",
+    "duration_s": 60.4
+  },
+  {
+    "key": "analyze",
+    "title": "Analyze results",
+    "kind": "code",
+    "status": "ok",
+    "detail": "p95 6.1 ms, 0 spike(s), 1 error cluster(s), verdict healthy",
+    "duration_s": 0.11
+  },
+  {
+    "key": "logs",
+    "title": "Inspect application and GC logs",
+    "kind": "code",
+    "status": "ok",
+    "detail": "1745 lines, 2 exception type(s), 148 GC events",
+    "duration_s": 0.01
+  },
+  {
+    "key": "correlate",
+    "title": "Correlate with logs, code and recent commits",
+    "kind": "agent",
+    "status": "ok",
+    "detail": "LLM agent with code/log tools (2 noise finding(s) dropped)",
+    "duration_s": 25.04
+  },
+  {
+    "key": "report",
+    "title": "Build report and publish",
+    "kind": "code",
+    "status": "ok",
+    "detail": "reports/runs/20261024-080855/report.html"
+  }
+]
