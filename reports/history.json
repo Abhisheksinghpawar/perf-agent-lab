@@ -1350,5 +1350,115 @@
     },
     "llm": "openai/gpt-oss-20b",
     "analysis_by": "llm"
+  },
+  {
+    "run_id": "20261030-100215",
+    "finished_at": "2026-10-30T10:05:01+00:00",
+    "verdict": "attention",
+    "duration_s": 166.7,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "da97d51234477cfe7f09c262ccfcc94235ad59df",
+      "short": "da97d512",
+      "subject": "Merge pull request #1203 from mybatis/renovate/com.codeborne-selenide-7.x",
+      "date": "2026-10-29T21:01:56-04:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 56,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 51204,
+      "rps": 856.46,
+      "error_rate": 0.0003,
+      "p50": 5.2,
+      "p95": 32.9,
+      "p99": 79.7,
+      "failures": 16
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 1
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 139,
+      "gc_max_pause_ms": 20.9
+    },
+    "resources": {
+      "cpu_avg": 44.8,
+      "cpu_max": 83.5,
+      "java_cpu_avg": 23.1,
+      "java_rss_max_mb": 408.3,
+      "net_sent_mb": 242.12,
+      "net_recv_mb": 242.06
+    },
+    "findings": [
+      {
+        "title": "Elevated latency on POST /account/signon (regression)",
+        "severity": "medium"
+      },
+      {
+        "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+        "severity": "low"
+      }
+    ],
+    "top_finding": {
+      "title": "Elevated latency on POST /account/signon (regression)",
+      "severity": "medium",
+      "category": "latency",
+      "endpoint": "POST /account/signon",
+      "evidence": [
+        "p95 70.9\u202fms vs baseline 20.4\u202fms (\u0394\u202f247.5\u202f%)",
+        "spike count 1052 requests"
+      ],
+      "suspected_cause": "CPU contention from load generator sharing machine and possible inefficiency in sign\u2011on handler",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/web/controllers/AccountController.java",
+          "line": 88,
+          "note": "signon method"
+        }
+      ],
+      "recommendation": "Move the load generator to a separate machine or reduce its load; profile the signon handler for expensive DB calls or session work."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Move load generator to a dedicated machine or reduce its load",
+        "effort": "medium"
+      },
+      {
+        "priority": 2,
+        "action": "Profile and optimize the signon handler (e.g., cache account data, reduce DB round\u2011trips)",
+        "effort": "medium"
+      },
+      {
+        "priority": 3,
+        "action": "Implement robust unique order ID generation and graceful error handling for duplicate keys",
+        "effort": "low"
+      }
+    ],
+    "top_improvement": "Move load generator to a dedicated machine or reduce its load",
+    "summary": "The load test revealed a significant latency regression on the sign\u2011on endpoint, likely due to CPU contention from the shared load generator. Duplicate order ID errors persist but are already known. No new critical resource or GC issues were detected.",
+    "tokens": {
+      "total": 14119,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "openai/gpt-oss-20b",
+    "analysis_by": "llm"
   }
 ]
