@@ -11,8 +11,8 @@
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
     "first_seen": "20261011-045856",
-    "last_seen": "20261024-080855",
-    "seen_count": 3,
+    "last_seen": "20261102-110907",
+    "seen_count": 4,
     "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)"
   },
   "3e061b7399": {
@@ -39,6 +39,14 @@
     "seen_count": 1,
     "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)"
   },
+  "e6418f7360": {
+    "category": "latency",
+    "endpoint": "GET /account/signoff",
+    "first_seen": "20261102-110907",
+    "last_seen": "20261102-110907",
+    "seen_count": 1,
+    "title": "Elevated latency on GET /account/signoff (regression)"
+  },
   "ef86c7544c": {
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
@@ -51,8 +59,8 @@
     "category": "latency",
     "endpoint": "POST /account/signon",
     "first_seen": "20261030-100215",
-    "last_seen": "20261030-100215",
-    "seen_count": 1,
+    "last_seen": "20261102-110907",
+    "seen_count": 2,
     "title": "Elevated latency on POST /account/signon (regression)"
   },
   "fafa244209": {
