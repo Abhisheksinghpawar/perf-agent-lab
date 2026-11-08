@@ -1574,5 +1574,119 @@
     },
     "llm": "openai/gpt-oss-20b",
     "analysis_by": "llm"
+  },
+  {
+    "run_id": "20261108-102408",
+    "finished_at": "2026-11-08T10:26:53+00:00",
+    "verdict": "attention",
+    "duration_s": 165.3,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "c3dbf6f56f6bb0730478b0f38e16ec6dfd204b23",
+      "short": "c3dbf6f5",
+      "subject": "Merge pull request #1211 from mybatis/renovate/org.seleniumhq.selenium-htmlunit3-driver-4.x",
+      "date": "2026-11-07T14:10:05-05:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 66,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 50212,
+      "rps": 839.94,
+      "error_rate": 0.0003,
+      "p50": 7.1,
+      "p95": 49.5,
+      "p99": 88.4,
+      "failures": 16
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 2
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 141,
+      "gc_max_pause_ms": 15.7
+    },
+    "resources": {
+      "cpu_avg": 48.2,
+      "cpu_max": 86.5,
+      "java_cpu_avg": 25.0,
+      "java_rss_max_mb": 389.0,
+      "net_sent_mb": 237.47,
+      "net_recv_mb": 237.39
+    },
+    "findings": [
+      {
+        "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+        "severity": "high"
+      },
+      {
+        "title": "Elevated latency on POST /account/signon (regression)",
+        "severity": "medium"
+      },
+      {
+        "title": "Elevated latency on GET /account/signoff (regression)",
+        "severity": "medium"
+      }
+    ],
+    "top_finding": {
+      "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+      "severity": "high",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "16 500 errors during test",
+        "HsqlException: integrity constraint violation: PK_ORDERS"
+      ],
+      "suspected_cause": "Concurrent order creation generating duplicate ORDERID values",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "OrderService.insertOrder"
+        }
+      ],
+      "recommendation": "Implement a robust unique ORDERID generator (e.g., UUID or database sequence) and add retry logic for duplicate key exceptions."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Implement a robust unique ORDERID generation strategy (e.g., UUID or DB sequence) and add retry logic for duplicate key errors",
+        "effort": "medium"
+      },
+      {
+        "priority": 2,
+        "action": "Move load generator to a separate machine or VM to eliminate CPU contention with the application server",
+        "effort": "medium"
+      },
+      {
+        "priority": 3,
+        "action": "Profile and optimize POST /account/signon and GET /account/signoff endpoints (e.g., cache credentials, reduce DB round\u2011trips)",
+        "effort": "high"
+      }
+    ],
+    "top_improvement": "Implement a robust unique ORDERID generation strategy (e.g., UUID or DB sequence) and add retry logic for duplicate key errors",
+    "summary": "The load test reveals known regressions in account sign\u2011on and sign\u2011off latency, and duplicate order ID errors on order creation. CPU usage is moderate with brief saturation, but no new spikes were detected. All regressions are marked recurring; focus should be on confirming environment stability and addressing resource contention.",
+    "tokens": {
+      "total": 15133,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "openai/gpt-oss-20b",
+    "analysis_by": "llm"
   }
 ]
