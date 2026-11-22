@@ -1688,5 +1688,115 @@
     },
     "llm": "openai/gpt-oss-20b",
     "analysis_by": "llm"
+  },
+  {
+    "run_id": "20261122-112617",
+    "finished_at": "2026-11-22T11:28:52+00:00",
+    "verdict": "attention",
+    "duration_s": 154.7,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "3b4a231d6cf494a3270c6c02ea6ed8a61b0805e1",
+      "short": "3b4a231d",
+      "subject": "Merge pull request #1215 from mybatis/renovate/actions-setup-java-6.x",
+      "date": "2026-11-21T14:06:42-05:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 82,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 51438,
+      "rps": 859.43,
+      "error_rate": 0.0003,
+      "p50": 3.7,
+      "p95": 25.4,
+      "p99": 63.8,
+      "failures": 13
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 1
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 126,
+      "gc_max_pause_ms": 14.3
+    },
+    "resources": {
+      "cpu_avg": 43.8,
+      "cpu_max": 87.8,
+      "java_cpu_avg": 22.9,
+      "java_rss_max_mb": 401.7,
+      "net_sent_mb": 246.95,
+      "net_recv_mb": 246.92
+    },
+    "findings": [
+      {
+        "title": "Elevated latency on POST /account/signon (regression)",
+        "severity": "high"
+      },
+      {
+        "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+        "severity": "medium"
+      }
+    ],
+    "top_finding": {
+      "title": "Elevated latency on POST /account/signon (regression)",
+      "severity": "high",
+      "category": "latency",
+      "endpoint": "POST /account/signon",
+      "evidence": [
+        "p95 70.5\u202fms vs baseline 20.4\u202fms (\u0394\u202f245.6%)",
+        "spike count 997 requests"
+      ],
+      "suspected_cause": "environment variance (load generator sharing machine)",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/web/controllers/AccountController.java",
+          "line": 88,
+          "note": "signon handler"
+        }
+      ],
+      "recommendation": "Investigate DB query performance and add connection pool tuning; consider caching account lookup if appropriate."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Add connection pool tuning and query profiling for accountService.getAccount to reduce signon latency",
+        "effort": "medium"
+      },
+      {
+        "priority": 2,
+        "action": "Profile and index product lookup queries; add caching for product data",
+        "effort": "medium"
+      },
+      {
+        "priority": 3,
+        "action": "Implement robust unique order ID generation (e.g., UUID or DB sequence) and pre-insert validation",
+        "effort": "medium"
+      }
+    ],
+    "top_improvement": "Add connection pool tuning and query profiling for accountService.getAccount to reduce signon latency",
+    "summary": "2 item(s) need attention; the most important is: Elevated latency on POST /account/signon (regression). 1 small latency difference(s) were within run-to-run noise and are not treated as findings.",
+    "tokens": {
+      "total": 13812,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "openai/gpt-oss-20b",
+    "analysis_by": "llm"
   }
 ]
