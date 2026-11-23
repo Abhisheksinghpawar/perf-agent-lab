@@ -23,6 +23,14 @@
     "seen_count": 1,
     "title": "Elevated latency on catalog view endpoints"
   },
+  "6938843c3d": {
+    "category": "resource",
+    "endpoint": null,
+    "first_seen": "20261123-124315",
+    "last_seen": "20261123-124315",
+    "seen_count": 1,
+    "title": "CPU contention between load generator and application"
+  },
   "6aba1f33d5": {
     "category": "errors",
     "endpoint": "POST /order/new",
@@ -46,6 +54,14 @@
     "last_seen": "20261108-102408",
     "seen_count": 2,
     "title": "Elevated latency on GET /account/signoff (regression)"
+  },
+  "e72751fa5d": {
+    "category": "errors",
+    "endpoint": "/order/new (confirm)",
+    "first_seen": "20261123-124315",
+    "last_seen": "20261123-124315",
+    "seen_count": 1,
+    "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)"
   },
   "ef86c7544c": {
     "category": "errors",
