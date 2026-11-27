@@ -11,8 +11,8 @@
     "category": "errors",
     "endpoint": "POST /order/new (confirm)",
     "first_seen": "20261011-045856",
-    "last_seen": "20261122-112617",
-    "seen_count": 6,
+    "last_seen": "20261127-122218",
+    "seen_count": 7,
     "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)"
   },
   "3e061b7399": {
@@ -22,6 +22,14 @@
     "last_seen": "20261011-045856",
     "seen_count": 1,
     "title": "Elevated latency on catalog view endpoints"
+  },
+  "486690e8b3": {
+    "category": "resource",
+    "endpoint": null,
+    "first_seen": "20261127-122218",
+    "last_seen": "20261127-122218",
+    "seen_count": 1,
+    "title": "Potential CPU contention between load generator and application"
   },
   "6938843c3d": {
     "category": "resource",

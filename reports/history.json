@@ -1903,5 +1903,120 @@
     },
     "llm": "openai/gpt-oss-20b",
     "analysis_by": "llm"
+  },
+  {
+    "run_id": "20261127-122218",
+    "finished_at": "2026-11-27T12:24:17+00:00",
+    "verdict": "attention",
+    "duration_s": 119.2,
+    "target": {
+      "name": "JPetStore",
+      "process_label": "Tomcat JVM",
+      "runner": "maven-cargo"
+    },
+    "commit": {
+      "sha": "2b4c0815e0fc9424c1ccb4b7fbacbe8f5ffc8e96",
+      "short": "2b4c0815",
+      "subject": "Merge pull request #1225 from mybatis/renovate/org.seleniumhq.selenium-selenium-bom-4.x",
+      "date": "2026-11-26T15:07:52-05:00",
+      "repo": "https://github.com/mybatis/jpetstore-6",
+      "subdir": ""
+    },
+    "smoke": {
+      "passed": true,
+      "requests": 62,
+      "healed": false,
+      "heal_attempts": 0
+    },
+    "load": {
+      "users": 250,
+      "duration_s": 60,
+      "requests": 51970,
+      "rps": 867.88,
+      "error_rate": 0.0002,
+      "p50": 1.7,
+      "p95": 7.3,
+      "p99": 38.8,
+      "failures": 11
+    },
+    "analysis": {
+      "spikes": 0,
+      "error_clusters": 1,
+      "regressions": 0
+    },
+    "logs": {
+      "exception_types": 2,
+      "gc_count": 138,
+      "gc_max_pause_ms": 11.2
+    },
+    "resources": {
+      "cpu_avg": 34.1,
+      "cpu_max": 74.9,
+      "java_cpu_avg": 17.9,
+      "java_rss_max_mb": 386.6,
+      "net_sent_mb": 245.5,
+      "net_recv_mb": 245.46
+    },
+    "findings": [
+      {
+        "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+        "severity": "high"
+      },
+      {
+        "title": "Potential CPU contention between load generator and application",
+        "severity": "medium"
+      }
+    ],
+    "top_finding": {
+      "title": "Duplicate Order ID causing 500 errors on POST /order/new (confirm)",
+      "severity": "high",
+      "category": "errors",
+      "endpoint": "POST /order/new (confirm)",
+      "evidence": [
+        "11 500 errors (0.0109 error rate)",
+        "9 HsqlException entries"
+      ],
+      "suspected_cause": "getNextId(\"ordernum\") generates non\u2011unique IDs",
+      "code_refs": [
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/service/OrderService.java",
+          "line": 85,
+          "note": "orderMapper.insertOrder(order);"
+        },
+        {
+          "file": "src/main/java/org/mybatis/jpetstore/web/controllers/OrderController.java",
+          "line": 148,
+          "note": "OrderService.insertOrder(order);"
+        }
+      ],
+      "recommendation": "Replace getNextId with a database auto\u2011increment or UUID, or add a pre\u2011insert uniqueness check to avoid PK violations."
+    },
+    "improvements": [
+      {
+        "priority": 1,
+        "action": "Replace duplicate order ID generation with database\u2011generated IDs or UUIDs",
+        "effort": "medium"
+      },
+      {
+        "priority": 2,
+        "action": "Add retry logic for order insertion on unique constraint violation",
+        "effort": "low"
+      },
+      {
+        "priority": 3,
+        "action": "Move load generator to a dedicated host to reduce CPU contention",
+        "effort": "low"
+      }
+    ],
+    "top_improvement": "Replace duplicate order ID generation with database\u2011generated IDs or UUIDs",
+    "summary": "The load test revealed a recurring duplicate\u2011order\u2011ID issue causing ~1% 500 errors on POST /order/new (confirm) and 13 severe log entries. CPU usage remained moderate but the load generator shares the app host, raising contention risk. No new latency regressions were detected.",
+    "tokens": {
+      "total": 9576,
+      "skipped_llm_steps": [
+        "heal"
+      ]
+    },
+    "llm": "openai/gpt-oss-20b",
+    "analysis_by": "llm"
   }
 ]
