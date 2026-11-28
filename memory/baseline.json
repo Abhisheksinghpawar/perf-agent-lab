@@ -2,27 +2,6 @@
   "runs": [
     {
       "p95": {
-        "GET /account (sign-on form)": 9.1,
-        "GET /account/signoff": 12.2,
-        "GET /cart": 7.5,
-        "GET /cart/addItem": 8.7,
-        "GET /cart/checkout": 7.6,
-        "GET /catalog": 9.7,
-        "GET /catalog/searchProducts": 10.2,
-        "GET /catalog/viewCategory": 9.8,
-        "GET /catalog/viewItem": 9.7,
-        "GET /catalog/viewProduct": 10.1,
-        "GET /order/new": 7.3,
-        "POST /account/signon": 23.0,
-        "POST /order/new (billing)": 7.1,
-        "POST /order/new (confirm)": 9.2
-      },
-      "run_id": "20261011-025214",
-      "sha": "1ffdf1e91b62aa32abfc4511f548c9bdc84b9bbf",
-      "users": 250
-    },
-    {
-      "p95": {
         "GET /account (sign-on form)": 35.2,
         "GET /account/signoff": 35.2,
         "GET /cart": 25.6,
@@ -208,6 +187,27 @@
       },
       "run_id": "20261127-122218",
       "sha": "2b4c0815e0fc9424c1ccb4b7fbacbe8f5ffc8e96",
+      "users": 250
+    },
+    {
+      "p95": {
+        "GET /account (sign-on form)": 5.0,
+        "GET /account/signoff": 7.0,
+        "GET /cart": 4.4,
+        "GET /cart/addItem": 5.0,
+        "GET /cart/checkout": 4.3,
+        "GET /catalog": 4.2,
+        "GET /catalog/searchProducts": 5.2,
+        "GET /catalog/viewCategory": 4.3,
+        "GET /catalog/viewItem": 4.5,
+        "GET /catalog/viewProduct": 4.5,
+        "GET /order/new": 4.2,
+        "POST /account/signon": 11.3,
+        "POST /order/new (billing)": 4.9,
+        "POST /order/new (confirm)": 6.9
+      },
+      "run_id": "20261128-114621",
+      "sha": "20055b5b15e353bd8c91551589266136069993c3",
       "users": 250
     }
   ]

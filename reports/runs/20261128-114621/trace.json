@@ -1,0 +1,73 @@
+[
+  {
+    "key": "pull",
+    "title": "Pull latest code",
+    "kind": "code",
+    "status": "ok",
+    "detail": "20055b5b Merge pull request #1229 from mybatis/renovate/mockito-monor",
+    "duration_s": 0.63
+  },
+  {
+    "key": "env",
+    "title": "Build and start the application",
+    "kind": "code",
+    "status": "ok",
+    "detail": "build 15.4s, ready after 8.0s",
+    "duration_s": 23.42
+  },
+  {
+    "key": "sanity",
+    "title": "Sanity (smoke) test",
+    "kind": "code",
+    "status": "ok",
+    "detail": "last known-good script: 78 req, 0 failed, p95 81.7 ms",
+    "duration_s": 20.26
+  },
+  {
+    "key": "heal",
+    "title": "Self-heal the Locust script",
+    "kind": "agent",
+    "status": "skipped",
+    "detail": "smoke test passed - no repair needed",
+    "duration_s": 0
+  },
+  {
+    "key": "load",
+    "title": "Run the load test (250 users, 60 s)",
+    "kind": "code",
+    "status": "ok",
+    "detail": "52708 requests, 59 resource samples",
+    "duration_s": 60.33
+  },
+  {
+    "key": "analyze",
+    "title": "Analyze results",
+    "kind": "code",
+    "status": "ok",
+    "detail": "p95 4.8 ms, 0 spike(s), 1 error cluster(s), verdict healthy",
+    "duration_s": 0.1
+  },
+  {
+    "key": "logs",
+    "title": "Inspect application and GC logs",
+    "kind": "code",
+    "status": "ok",
+    "detail": "2201 lines, 2 exception type(s), 147 GC events",
+    "duration_s": 0.03
+  },
+  {
+    "key": "correlate",
+    "title": "Correlate with logs, code and recent commits",
+    "kind": "agent",
+    "status": "ok",
+    "detail": "LLM agent with code/log tools",
+    "duration_s": 3.16
+  },
+  {
+    "key": "report",
+    "title": "Build report and publish",
+    "kind": "code",
+    "status": "ok",
+    "detail": "reports/runs/20261128-114621/report.html"
+  }
+]
